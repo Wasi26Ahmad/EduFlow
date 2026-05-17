@@ -1,0 +1,43 @@
+<h1>Create Test</h1>
+
+<%= form_with model: [@course, @test],
+              url: teacher_course_tests_path(@course) do |f| %>
+
+  <div>
+    <%= f.label :title %>
+    <%= f.text_field :title %>
+  </div>
+
+  <div>
+    <%= f.label :description %>
+    <%= f.text_area :description %>
+  </div>
+
+  <div>
+    <%= f.label :start_time %>
+    <%= f.datetime_local_field :start_time %>
+  </div>
+
+  <div>
+    <%= f.label :end_time %>
+    <%= f.datetime_local_field :end_time %>
+  </div>
+
+  <div>
+    <%= f.label :duration_minutes %>
+    <%= f.number_field :duration_minutes %>
+  </div>
+
+  <div>
+    <%= f.label :total_marks %>
+    <%= f.number_field :total_marks %>
+  </div>
+
+  <div>
+    <%= f.label :published %>
+    <%= f.check_box :published %>
+  </div>
+
+  <%= f.submit "Create Test" %>
+
+<% end %>

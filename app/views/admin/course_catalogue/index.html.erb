@@ -1,0 +1,179 @@
+<%
+  courses_data = (@courses || Course.all).map do |course|
+
+    total_students =
+      course.enrollments.count
+
+    approved_students =
+      course.enrollments.approved.count
+
+    total_earned =
+      course.payments
+            .paid
+            .sum(:amount)
+            .to_f
+
+    total_discounts =
+      begin
+        course.payments
+              .paid
+              .sum(:discount_amount)
+              .to_f
+      rescue
+        0
+      end
+
+    expected_revenue =
+      approved_students *
+      course.price.to_f
+
+    collected_value =
+      total_earned +
+      total_discounts
+
+    dues =
+      [
+        expected_revenue -
+          collected_value,
+        0
+      ].max
+
+    collection_rate =
+      if expected_revenue > 0
+        (
+          (
+            collected_value /
+              expected_revenue
+          ) * 100
+        ).round
+      else
+        0
+      end
+
+    collection_rate = 100 if collection_rate > 100
+
+    active_coupon_list =
+      begin
+        course.coupons
+              .where(active: true)
+              .order(created_at: :desc)
+              .map do |coupon|
+
+          {
+            id: coupon.id,
+            code: coupon.code,
+
+            discount_type:
+              coupon.discount_type,
+
+            discount_value:
+              coupon.discount_value,
+
+            used_count:
+              coupon.used_count || 0,
+
+            starts_at:
+              coupon.starts_at&.strftime(
+                "%d %b"
+              ),
+
+            expires_at:
+              coupon.expires_at&.strftime(
+                "%d %b"
+              )
+          }
+        end
+      rescue
+        []
+      end
+
+    total_coupons =
+      begin
+        course.coupons.count
+      rescue
+        0
+      end
+
+    active_coupons =
+      begin
+        course.coupons
+              .where(active: true)
+              .count
+      rescue
+        0
+      end
+
+    total_coupon_uses =
+      begin
+        course.coupons
+              .sum(:used_count)
+      rescue
+        0
+      end
+
+    {
+      id: course.id,
+
+      title:
+        course.title,
+
+      code:
+        course.code ||
+          course.course_code,
+
+      teacher_email:
+        course.teacher&.email,
+
+      price:
+        course.price.to_f,
+
+      total_students:
+        total_students,
+
+      approved_students:
+        approved_students,
+
+      total_earned:
+        total_earned,
+
+      dues:
+        dues,
+
+      expected_revenue:
+        expected_revenue,
+
+      collection_rate:
+        collection_rate,
+
+      total_coupons:
+        total_coupons,
+
+      active_coupons:
+        active_coupons,
+
+      total_coupon_uses:
+        total_coupon_uses,
+
+      active_coupon_list:
+        active_coupon_list
+    }
+  end
+
+  current_role =
+    if current_user.super_admin?
+      "super_admin"
+    elsif current_user.admin?
+      "admin"
+    else
+      "user"
+    end
+%>
+
+<%= vite_javascript_tag "admin_course_analytics.jsx" %>
+
+<div
+  id="course-analytics-dashboard"
+  data-courses="<%= html_escape(courses_data.to_json) %>"
+  data-total-courses="<%= Course.count %>"
+  data-current-user-role="<%= current_role %>"
+></div>

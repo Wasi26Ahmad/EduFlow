@@ -1,0 +1,14 @@
+<%= content_for :title, "Edit Course" %>
+
+<div id="edit-course-root"></div>
+
+<script>
+    window.EDIT_COURSE_DATA = {
+        course: <%= raw(@course.to_json) %>,
+        teachers: <%= raw(User.teacher.select(:id, :email).to_json) %>,
+        isAdmin: <%= (current_user.admin? || current_user.super_admin?).to_json %>,
+        formAction: "<%= course_path(@course) %>"
+    };
+</script>
+
+<%= vite_javascript_tag "edit_course.jsx" %>

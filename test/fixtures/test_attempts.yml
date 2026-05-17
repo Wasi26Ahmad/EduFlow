@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  test: one
+  started_at: 2026-05-15 10:07:09
+  submitted_at: 2026-05-15 10:07:09
+  expires_at: 2026-05-15 10:07:09
+  total_marks_obtained: 1.5
+  percentage: 1.5
+  status: 1
+
+two:
+  user: two
+  test: two
+  started_at: 2026-05-15 10:07:09
+  submitted_at: 2026-05-15 10:07:09
+  expires_at: 2026-05-15 10:07:09
+  total_marks_obtained: 1.5
+  percentage: 1.5
+  status: 1

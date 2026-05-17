@@ -1,0 +1,63 @@
+<%= vite_javascript_tag "course_catalogue.jsx" %>
+
+<%
+  serialized_courses = @courses.includes(:teacher, :coupons).map do |course|
+
+    existing_enrollment = Enrollment.find_by(
+      user_id: current_user.id,
+      course_id: course.id
+    )
+
+    active_coupons =
+      course.coupons
+            .where(active: true)
+            .where("starts_at <= ?", Time.current)
+            .where("expires_at >= ?", Time.current)
+
+    {
+      id: course.id,
+      title: course.title,
+      code: course.code,
+      semester: course.semester,
+      price: course.price.to_i,
+      teacher_name: course.teacher.name,
+
+      existing_enrollment:
+        existing_enrollment && {
+          id: existing_enrollment.id,
+          status: existing_enrollment.status
+        },
+
+      payment_completed:
+        current_user.paid_for_course?(course),
+
+      coupons:
+        active_coupons.map do |coupon|
+          {
+            id: coupon.id,
+            code: coupon.code,
+            discount_type: coupon.discount_type,
+            discount_value: coupon.discount_value
+          }
+        end
+    }
+  end
+
+  react_props = {
+    courses: serialized_courses,
+    total_courses: Course.count,
+    csrf_token: form_authenticity_token,
+
+    current_user: {
+      id: current_user.id,
+      role: current_user.role,
+      current_semester:
+        current_user.current_semester
+    }
+  }
+%>
+
+<div
+  id="course-catalogue-root"
+  data-props="<%= json_escape(react_props.to_json) %>"
+></div>

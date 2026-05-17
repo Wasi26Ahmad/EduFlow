@@ -1,0 +1,136 @@
+<div style="
+max-width: 980px;
+  margin: 48px auto 80px;
+  padding: 0 24px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+">
+
+  <!-- HERO -->
+  <div style="
+  position:relative;
+    overflow:hidden;
+    border-radius:36px;
+    padding:40px;
+    background:
+      radial-gradient(circle at top right, rgba(99,102,241,0.12), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(59,130,246,0.08), transparent 24%),
+        rgba(255,255,255,0.82);
+    backdrop-filter:blur(24px);
+    border:1px solid rgba(255,255,255,0.92);
+    box-shadow:
+      0 12px 40px rgba(15,23,42,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+  ">
+
+    <!-- glow -->
+    <div style="
+    position:absolute;
+      width:300px;
+      height:300px;
+      border-radius:999px;
+      background:
+        radial-gradient(circle, rgba(99,102,241,0.14), transparent 72%);
+      top:-120px;
+      right:-120px;
+      pointer-events:none;
+    "></div>
+
+    <div style="
+    position:relative;
+      z-index:2;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:24px;
+      flex-wrap:wrap;
+    ">
+
+      <div>
+
+        <div style="
+        display:inline-flex;
+          align-items:center;
+          gap:8px;
+          padding:8px 14px;
+          border-radius:999px;
+          background:rgba(99,102,241,0.08);
+          color:#4f46e5;
+          font-size:11px;
+          font-weight:800;
+          letter-spacing:.12em;
+          text-transform:uppercase;
+          margin-bottom:18px;
+        ">
+          Promotional Campaign
+        </div>
+
+        <h1 style="
+        margin:0;
+          font-size:54px;
+          line-height:1;
+          font-weight:900;
+          letter-spacing:-2px;
+          color:#0f172a;
+        ">
+          Generate Coupon
+        </h1>
+
+        <p style="
+        margin-top:16px;
+          max-width:700px;
+          color:#64748b;
+          font-size:15px;
+          line-height:1.8;
+        ">
+          Create high-converting promotional campaigns with custom discount rules, redemption limits, and campaign schedules for this course.
+        </p>
+
+      </div>
+
+      <!-- side card -->
+      <div style="
+      min-width:240px;
+        border-radius:30px;
+        padding:26px;
+        background:
+          linear-gradient(145deg, #0f172a, #1e293b);
+        color:white;
+        box-shadow:
+          0 18px 40px rgba(15,23,42,0.22),
+            inset 0 1px 0 rgba(255,255,255,0.08);
+      ">
+
+        <div style="
+        font-size:11px;
+          font-weight:800;
+          letter-spacing:.12em;
+          text-transform:uppercase;
+          opacity:.7;
+        ">
+          Course
+        </div>
+
+        <div style="
+        margin-top:12px;
+          font-size:26px;
+          line-height:1.15;
+          font-weight:900;
+          letter-spacing:-1px;
+        ">
+          <%= @course.title %>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FORM -->
+  <div style="
+  margin-top:30px;
+  ">
+    <%= render "form" %>
+  </div>
+
+</div>

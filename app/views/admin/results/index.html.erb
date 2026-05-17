@@ -1,0 +1,73 @@
+<%= csrf_meta_tags %>
+<%= csp_meta_tag %>
+
+<script>
+    window.RESULTS_APPROVAL_DATA = {
+        csrf_token:
+          document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute("content"),
+
+        uploads: <%= raw(
+            @uploads.map do |u|
+                {
+                    id: u.id,
+
+                    course_title:
+                        u.course.title,
+
+                    teacher_email:
+                        u.teacher.email,
+
+                    status:
+                        u.status,
+
+                    created_at:
+                        u.created_at.strftime("%d %b %Y"),
+
+                    view_path:
+                        admin_bulk_marks_upload_path(u),
+
+                    approve_path:
+                        approve_admin_bulk_marks_upload_path(u),
+
+                    reject_path:
+                        reject_admin_bulk_marks_upload_path(u)
+                }
+            end.to_json
+        ) %>,
+
+        results: <%= raw(
+            @results.map do |r|
+                {
+                    id: r.id,
+
+                    student_email:
+                        r.user&.email,
+
+                    course_title:
+                        r.course&.title,
+
+                    marks:
+                        r.marks,
+
+                    gpa:
+                        r.gpa,
+
+                    approved:
+                        r.approved,
+
+                    approve_path:
+                        admin_result_path(r),
+
+                    reject_path:
+                        reject_admin_result_path(r)
+                }
+            end.to_json
+        ) %>
+    };
+</script>
+
+<div id="admin-results-approval-dashboard"></div>
+
+<%= vite_javascript_tag "admin_results_approval.jsx" %>

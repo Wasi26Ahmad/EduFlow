@@ -1,0 +1,356 @@
+<div style="
+max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px 60px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(circle at top, #eef2ff, transparent 60%),
+      radial-gradient(circle at bottom, #ecfeff, transparent 55%);
+">
+
+  <!-- HERO -->
+  <div style="
+  position:relative;
+    overflow:hidden;
+    border-radius:28px;
+    padding:38px;
+    margin-bottom:34px;
+    background:rgba(255,255,255,0.58);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,0.5);
+    box-shadow:0 20px 60px rgba(15,23,42,0.08);
+  ">
+
+    <div style="
+    display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:20px;
+      flex-wrap:wrap;
+    ">
+
+      <div>
+
+        <div style="
+        display:inline-flex;
+          align-items:center;
+          gap:8px;
+          padding:6px 12px;
+          border-radius:999px;
+          background:rgba(16,185,129,0.12);
+          color:#059669;
+          font-size:12px;
+          font-weight:800;
+          letter-spacing:0.4px;
+          margin-bottom:14px;
+        ">
+          📤 BULK MARKS SYSTEM
+        </div>
+
+        <h1 style="
+        font-size:42px;
+          font-weight:900;
+          letter-spacing:-1.4px;
+          color:#0f172a;
+          margin:0;
+          line-height:1.1;
+        ">
+          Bulk Marks Uploads
+        </h1>
+
+        <p style="
+        margin-top:14px;
+          font-size:15px;
+          color:#475569;
+          max-width:650px;
+          line-height:1.7;
+        ">
+          Manage Excel-based marks submissions, track approval status, and monitor upload activity across all courses.
+        </p>
+
+      </div>
+
+      <!-- ACTION CARD -->
+      <div style="
+      min-width:240px;
+        background:rgba(255,255,255,0.55);
+        backdrop-filter:blur(18px);
+        border:1px solid rgba(255,255,255,0.5);
+        border-radius:20px;
+        padding:18px;
+        box-shadow:0 12px 35px rgba(15,23,42,0.08);
+      ">
+
+        <div style="
+        font-size:11px;
+          font-weight:800;
+          text-transform:uppercase;
+          letter-spacing:0.6px;
+          color:#94a3b8;
+          margin-bottom:8px;
+        ">
+          Quick Action
+        </div>
+
+        <div style="
+        font-size:14px;
+          font-weight:700;
+          color:#0f172a;
+          line-height:1.6;
+          margin-bottom:14px;
+        ">
+          Create and upload a new Excel marks sheet.
+        </div>
+
+        <%= link_to "New Upload",
+                    new_teacher_bulk_marks_upload_path,
+                    style: "
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          padding:10px 14px;
+          background:#2563eb;
+          color:white;
+          border-radius:12px;
+          font-size:13px;
+          font-weight:800;
+          text-decoration:none;
+          box-shadow:0 10px 25px rgba(37,99,235,0.18);
+        " %>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- SECTION HEADER -->
+  <div style="
+  margin-bottom:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+  ">
+
+    <div>
+
+      <h2 style="
+      font-size:22px;
+        font-weight:900;
+        color:#0f172a;
+        margin:0;
+      ">
+        Upload History
+      </h2>
+
+      <p style="
+      margin-top:6px;
+        color:#64748b;
+        font-size:14px;
+      ">
+        Recent Excel uploads and approval statuses
+      </p>
+
+    </div>
+
+  </div>
+
+  <% if @uploads.any? %>
+
+    <!-- GRID -->
+    <div style="
+    display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+      gap:20px;
+    ">
+
+      <% @uploads.each do |u| %>
+
+        <%
+          status_colors =
+            case u.status.to_s.downcase
+            when "approved"
+              ["rgba(16,185,129,0.12)", "#059669"]
+            when "rejected"
+              ["rgba(239,68,68,0.12)", "#dc2626"]
+            else
+              ["rgba(245,158,11,0.12)", "#d97706"]
+            end
+        %>
+
+        <div style="
+        border-radius:24px;
+          padding:24px;
+          background:rgba(255,255,255,0.6);
+          backdrop-filter:blur(16px);
+          border:1px solid rgba(255,255,255,0.5);
+          box-shadow:0 10px 30px rgba(15,23,42,0.06);
+          position:relative;
+          overflow:hidden;
+        ">
+
+          <!-- ICON -->
+          <div style="
+          width:58px;
+            height:58px;
+            border-radius:18px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:rgba(37,99,235,0.12);
+            color:#2563eb;
+            font-size:24px;
+            margin-bottom:18px;
+          ">
+            📊
+          </div>
+
+          <!-- COURSE -->
+          <div style="
+          font-size:20px;
+            font-weight:900;
+            color:#0f172a;
+            line-height:1.3;
+          ">
+            <%= u.course.title %>
+          </div>
+
+          <!-- META -->
+          <div style="
+          margin-top:18px;
+            display:flex;
+            flex-direction:column;
+            gap:12px;
+          ">
+
+            <!-- STATUS -->
+            <div>
+
+              <div style="
+              font-size:11px;
+                font-weight:800;
+                text-transform:uppercase;
+                letter-spacing:0.5px;
+                color:#94a3b8;
+                margin-bottom:6px;
+              ">
+                Status
+              </div>
+
+              <div style="
+              display:inline-flex;
+                align-items:center;
+                gap:8px;
+                padding:8px 12px;
+                border-radius:999px;
+                background:<%= status_colors[0] %>;
+                color:<%= status_colors[1] %>;
+                font-size:12px;
+                font-weight:800;
+              ">
+                ● <%= u.status.to_s.titleize %>
+              </div>
+
+            </div>
+
+            <!-- TIME -->
+            <div>
+
+              <div style="
+              font-size:11px;
+                font-weight:800;
+                text-transform:uppercase;
+                letter-spacing:0.5px;
+                color:#94a3b8;
+                margin-bottom:6px;
+              ">
+                Uploaded
+              </div>
+
+              <div style="
+              font-size:14px;
+                font-weight:700;
+                color:#334155;
+              ">
+                <%= time_ago_in_words(u.created_at) %> ago
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      <% end %>
+
+    </div>
+
+  <% else %>
+
+    <!-- EMPTY STATE -->
+    <div style="
+    border-radius:28px;
+      padding:60px 30px;
+      text-align:center;
+      background:rgba(255,255,255,0.6);
+      backdrop-filter:blur(16px);
+      border:1px solid rgba(255,255,255,0.5);
+      box-shadow:0 10px 30px rgba(15,23,42,0.06);
+    ">
+
+      <div style="
+      font-size:64px;
+        margin-bottom:18px;
+      ">
+        📂
+      </div>
+
+      <h3 style="
+      margin:0;
+        font-size:24px;
+        font-weight:900;
+        color:#0f172a;
+      ">
+        No Uploads Yet
+      </h3>
+
+      <p style="
+      margin-top:12px;
+        color:#64748b;
+        font-size:15px;
+        max-width:500px;
+        margin-left:auto;
+        margin-right:auto;
+        line-height:1.7;
+      ">
+        You haven't uploaded any Excel marks sheets yet. Start by creating your first bulk upload.
+      </p>
+
+      <div style="margin-top:24px;">
+
+        <%= link_to "Create First Upload",
+                    new_teacher_bulk_marks_upload_path,
+                    style: "
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          padding:14px 18px;
+          background:#2563eb;
+          color:white;
+          border-radius:14px;
+          font-size:14px;
+          font-weight:800;
+          text-decoration:none;
+          box-shadow:0 12px 25px rgba(37,99,235,0.18);
+        " %>
+
+      </div>
+
+    </div>
+
+  <% end %>
+
+</div>

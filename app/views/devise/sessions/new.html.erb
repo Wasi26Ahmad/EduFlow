@@ -1,0 +1,205 @@
+<div style="
+max-width: 480px;
+  margin: 60px auto;
+  padding: 0 20px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(circle at top, #eef2ff, transparent 60%),
+      radial-gradient(circle at bottom, #ecfeff, transparent 55%);
+">
+
+  <!-- LOGIN CARD -->
+  <div style="
+  position:relative;
+    overflow:hidden;
+    border-radius:30px;
+    padding:38px;
+    background:rgba(255,255,255,0.62);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,0.55);
+    box-shadow:0 20px 60px rgba(15,23,42,0.08);
+  ">
+
+    <!-- TOP BADGE -->
+    <div style="
+    display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 14px;
+      border-radius:999px;
+      background:rgba(37,99,235,0.1);
+      color:#2563eb;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:0.4px;
+      margin-bottom:18px;
+    ">
+      🔐 SECURE LOGIN
+    </div>
+
+    <!-- TITLE -->
+    <h1 style="
+    margin:0;
+      font-size:40px;
+      line-height:1;
+      font-weight:900;
+      letter-spacing:-1.5px;
+      color:#0f172a;
+    ">
+      Welcome Back
+    </h1>
+
+    <p style="
+    margin-top:14px;
+      margin-bottom:30px;
+      color:#64748b;
+      font-size:15px;
+      line-height:1.7;
+    ">
+      Sign in to continue managing courses, enrollments, and academic workflows.
+    </p>
+
+    <%= form_for(resource,
+                 as: resource_name,
+                 url: session_path(resource_name)) do |f| %>
+
+      <!-- EMAIL -->
+      <div style="margin-bottom:22px;">
+
+        <%= f.label :email,
+                    style: "
+          display:block;
+          margin-bottom:10px;
+          font-size:13px;
+          font-weight:800;
+          color:#334155;
+          letter-spacing:0.3px;
+        " %>
+
+        <%= f.email_field :email,
+                          autofocus: true,
+                          autocomplete: "email",
+                          placeholder: "Enter your email",
+                          style: "
+          width:100%;
+          padding:16px 18px;
+          border-radius:18px;
+          border:1px solid #dbe2ea;
+          background:#f8fafc;
+          font-size:14px;
+          font-weight:600;
+          color:#0f172a;
+          outline:none;
+          box-sizing:border-box;
+          transition:all 0.2s ease;
+        " %>
+
+      </div>
+
+      <!-- PASSWORD -->
+      <div style="margin-bottom:22px;">
+
+        <%= f.label :password,
+                    style: "
+          display:block;
+          margin-bottom:10px;
+          font-size:13px;
+          font-weight:800;
+          color:#334155;
+          letter-spacing:0.3px;
+        " %>
+
+        <%= f.password_field :password,
+                             autocomplete: "current-password",
+                             placeholder: "Enter your password",
+                             style: "
+          width:100%;
+          padding:16px 18px;
+          border-radius:18px;
+          border:1px solid #dbe2ea;
+          background:#f8fafc;
+          font-size:14px;
+          font-weight:600;
+          color:#0f172a;
+          outline:none;
+          box-sizing:border-box;
+          transition:all 0.2s ease;
+        " %>
+
+      </div>
+
+      <!-- REMEMBER -->
+      <% if devise_mapping.rememberable? %>
+
+        <div style="
+        display:flex;
+          align-items:center;
+          gap:10px;
+          margin-bottom:26px;
+          padding:14px 16px;
+          border-radius:16px;
+          background:rgba(255,255,255,0.55);
+          border:1px solid rgba(226,232,240,0.9);
+        ">
+
+          <%= f.check_box :remember_me,
+                          style: "
+            width:18px;
+            height:18px;
+            accent-color:#2563eb;
+            cursor:pointer;
+          " %>
+
+          <%= f.label :remember_me,
+                      style: "
+            font-size:14px;
+            font-weight:700;
+            color:#334155;
+            cursor:pointer;
+            margin:0;
+          " %>
+
+        </div>
+
+      <% end %>
+
+      <!-- BUTTON -->
+      <div>
+
+        <%= f.submit "Log in",
+                     style: "
+          width:100%;
+          border:none;
+          border-radius:18px;
+          padding:16px 20px;
+          background:linear-gradient(135deg,#2563eb,#4f46e5);
+          color:white;
+          font-size:15px;
+          font-weight:800;
+          letter-spacing:0.3px;
+          cursor:pointer;
+          box-shadow:0 14px 30px rgba(37,99,235,0.22);
+          transition:all 0.2s ease;
+        " %>
+
+      </div>
+
+    <% end %>
+
+    <!-- LINKS -->
+    <div style="
+    margin-top:28px;
+      padding-top:24px;
+      border-top:1px solid rgba(226,232,240,0.8);
+      color:#64748b;
+      font-size:14px;
+    ">
+
+      <%= render "devise/shared/links" %>
+
+    </div>
+
+  </div>
+
+</div>

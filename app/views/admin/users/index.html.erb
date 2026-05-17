@@ -1,0 +1,38 @@
+<div id="user-management-dashboard"></div>
+
+<div style="margin-top: 24px;">
+  <%== pagy_nav(@pagy) %>
+</div>
+
+<%= vite_javascript_tag "admin_users_dashboard.jsx" %>
+
+<script>
+    window.USER_MANAGEMENT_DATA = {
+        users: <%= raw(
+      @users.map do |user|
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          approved: user.approved?,
+          approve_path: approve_admin_user_path(user),
+          update_role_path: update_role_admin_user_path(user)
+        }
+      end.to_json
+    ) %>,
+
+        pagination: {
+            current_page: <%= @pagy.page %>,
+            total_pages: <%= @pagy.pages %>,
+            total_count: <%= @pagy.count %>
+        },
+
+        currentUser: {
+            super_admin: <%= current_user.super_admin?.to_json %>
+        },
+
+        roles: <%= raw(User.roles.keys.to_json) %>,
+
+        csrfToken: "<%= form_authenticity_token %>"
+    };
+</script>

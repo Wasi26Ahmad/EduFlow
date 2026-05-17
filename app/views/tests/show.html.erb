@@ -1,0 +1,41 @@
+<h1>
+  <%= @test.title %>
+</h1>
+
+<hr>
+
+<p>
+  <strong>Description:</strong>
+  <%= @test.description %>
+</p>
+
+<p>
+  <strong>Course:</strong>
+  <%= @test.course.title %>
+</p>
+
+<p>
+  <strong>Duration:</strong>
+  <%= @test.duration_minutes %> minutes
+</p>
+
+<p>
+  <strong>Total Marks:</strong>
+  <%= @test.total_marks %>
+</p>
+
+<p>
+  <strong>Starts At:</strong>
+  <%= @test.start_time %>
+</p>
+
+<p>
+  <strong>Ends At:</strong>
+  <%= @test.end_time %>
+</p>
+
+<hr>
+
+<%= button_to "Start Test",
+              start_test_path(@test),
+              method: :post %>

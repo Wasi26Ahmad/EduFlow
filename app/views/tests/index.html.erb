@@ -1,0 +1,53 @@
+<h1>Available Tests</h1>
+
+<hr>
+
+<% if @tests.any? %>
+
+  <% @tests.each do |test| %>
+
+    <div style="margin-bottom: 30px;">
+
+      <h2>
+        <%= test.title %>
+      </h2>
+
+      <p>
+        <strong>Course:</strong>
+        <%= test.course.title %>
+      </p>
+
+      <p>
+        <strong>Start:</strong>
+        <%= test.start_time %>
+      </p>
+
+      <p>
+        <strong>End:</strong>
+        <%= test.end_time %>
+      </p>
+
+      <p>
+        <strong>Duration:</strong>
+        <%= test.duration_minutes %> minutes
+      </p>
+
+      <p>
+        <strong>Total Marks:</strong>
+        <%= test.total_marks %>
+      </p>
+
+      <%= link_to "View Test",
+                  test_path(test) %>
+
+    </div>
+
+    <hr>
+
+  <% end %>
+
+<% else %>
+
+  <p>No available tests.</p>
+
+<% end %>

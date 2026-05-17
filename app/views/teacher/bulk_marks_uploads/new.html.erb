@@ -1,0 +1,19 @@
+<div id="teacher-marks-upload-root"></div>
+
+<script
+  id="teacher-marks-upload-data"
+  type="application/json"
+>
+  <%= raw(
+        {
+          courses: @courses.map do |course|
+            {
+              id: course.id,
+              title: course.title
+            }
+          end
+        }.to_json
+      ) %>
+</script>
+
+<%= vite_javascript_tag "teacher_bulk_marks_upload.jsx", type: "module" %>

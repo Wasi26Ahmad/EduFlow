@@ -1,0 +1,112 @@
+<div style="
+max-width: 900px;
+  margin: 40px auto;
+  font-family: system-ui, -apple-system, sans-serif;
+">
+
+  <!-- Course Header -->
+  <div style="
+  background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  ">
+
+    <h1 style="font-size: 26px; font-weight: 800; margin-bottom: 10px;">
+      <%= @course.title %>
+    </h1>
+
+    <div style="display: grid; gap: 6px; font-size: 14px; color: #374151;">
+
+      <div>
+        📘 <strong>Code:</strong> <%= @course.code %>
+      </div>
+
+      <div>
+        💰 <strong>Price:</strong> ৳<%= @course.price %>
+      </div>
+
+      <div>
+        👨‍🏫 <strong>Teacher:</strong> <%= @course.teacher.email %>
+      </div>
+
+      <div>
+        👥 <strong>Total Approved Students:</strong>
+        <span style="font-weight: 700; color: #2563eb;">
+          <%= @students.count %>
+        </span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Section Title -->
+  <h3 style="margin-top: 24px; font-size: 18px; font-weight: 700;">
+    Enrolled Students
+  </h3>
+
+  <!-- Empty State -->
+  <% if @students.empty? %>
+
+    <div style="
+    margin-top: 12px;
+      padding: 20px;
+      border: 1px dashed #d1d5db;
+      border-radius: 12px;
+      background: #f9fafb;
+      color: #6b7280;
+      text-align: center;
+    ">
+      No approved students yet
+    </div>
+
+  <% else %>
+
+    <!-- Students Grid -->
+    <div style="
+    display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    ">
+
+      <% @students.each do |e| %>
+
+        <div style="
+        background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          padding: 14px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        ">
+
+          <!-- Email -->
+          <div style="font-weight: 700; font-size: 14px;">
+            <%= e.user.email %>
+          </div>
+
+          <!-- Name -->
+          <% if e.user.name.present? %>
+            <div style="margin-top: 6px; font-size: 13px; color: #374151;">
+              👤 <%= e.user.name %>
+            </div>
+          <% end %>
+
+          <!-- Student ID -->
+          <% if e.user.student_id.present? %>
+            <div style="margin-top: 4px; font-size: 13px; color: #6b7280;">
+              ID: <%= e.user.student_id %>
+            </div>
+          <% end %>
+
+        </div>
+
+      <% end %>
+
+    </div>
+
+  <% end %>
+
+</div>

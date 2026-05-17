@@ -1,0 +1,60 @@
+<%= form_with model: [:teacher, result], class: "space-y-6" do |f| %>
+
+  <% if result.errors.any? %>
+    <div class="rounded-xl border border-red-200 bg-red-50 p-4">
+      <h2 class="mb-2 text-sm font-semibold text-red-700">
+        <%= pluralize(result.errors.count, "error") %> prevented this result from being saved:
+      </h2>
+
+      <ul class="list-disc pl-5 text-sm text-red-600">
+        <% result.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Student -->
+  <div>
+    <%= f.label :student_id,
+                class: "mb-2 block text-sm font-medium text-gray-700" %>
+
+    <%= f.collection_select :student_id,
+                            Student.all,
+                            :id,
+                            :full_name,
+                            { prompt: "Select Student" },
+                            class: "w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-blue-500 focus:ring-blue-500" %>
+  </div>
+
+  <!-- Course -->
+  <div>
+    <%= f.label :course_id,
+                class: "mb-2 block text-sm font-medium text-gray-700" %>
+
+    <%= f.collection_select :course_id,
+                            Course.all,
+                            :id,
+                            :name,
+                            { prompt: "Select Course" },
+                            class: "w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-blue-500 focus:ring-blue-500" %>
+  </div>
+
+  <!-- Marks -->
+  <div>
+    <%= f.label :score,
+                "Marks",
+                class: "mb-2 block text-sm font-medium text-gray-700" %>
+
+    <%= f.number_field :score,
+                       class: "w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-blue-500 focus:ring-blue-500",
+                       placeholder: "Enter marks" %>
+  </div>
+
+  <!-- Submit -->
+  <div class="pt-4">
+    <%= f.submit "Submit Marks",
+                 class: "inline-flex items-center rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 cursor-pointer" %>
+  </div>
+
+<% end %>

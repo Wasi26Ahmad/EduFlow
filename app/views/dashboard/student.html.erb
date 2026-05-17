@@ -1,0 +1,12 @@
+<div id="student-dashboard-root"
+     data-user-email="<%= current_user.email %>"
+     data-approved-count="<%= current_user.results.where(approved: true).count %>"
+     data-total-count="<%= current_user.results.count %>"
+     data-cgpa="<%= current_user.cgpa %>"
+     data-profile-path="<%= profile_path %>"
+     data-courses-path="<%= courses_path %>"
+     data-results-path="<%= results_path %>"
+     data-enrollments-path="<%= enrollments_path %>">
+</div>
+
+<%= vite_javascript_tag "student_dashboard.jsx" %>

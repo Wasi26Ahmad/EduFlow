@@ -1,0 +1,443 @@
+<%= form_with model: [:admin, @course, @coupon] do |f| %>
+
+  <div style="
+  max-width: 920px;
+    margin: 0 auto;
+    padding: 34px;
+    border-radius: 34px;
+    background:
+      radial-gradient(circle at top right, rgba(99,102,241,0.10), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(59,130,246,0.08), transparent 24%),
+        rgba(255,255,255,0.82);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.92);
+    box-shadow:
+      0 12px 40px rgba(15,23,42,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+    font-family: Inter, system-ui, sans-serif;
+    position: relative;
+    overflow: hidden;
+  ">
+
+    <!-- ambient glow -->
+    <div style="
+    position:absolute;
+      width:300px;
+      height:300px;
+      border-radius:999px;
+      background:
+        radial-gradient(circle, rgba(99,102,241,0.14), transparent 72%);
+      top:-120px;
+      right:-120px;
+      pointer-events:none;
+    "></div>
+
+    <!-- HEADER -->
+    <div style="
+    position:relative;
+      z-index:2;
+      margin-bottom:34px;
+    ">
+
+      <div style="
+      display:inline-flex;
+        align-items:center;
+        gap:8px;
+        padding:8px 14px;
+        border-radius:999px;
+        background:rgba(99,102,241,0.08);
+        color:#4f46e5;
+        font-size:11px;
+        font-weight:800;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+        margin-bottom:16px;
+      ">
+        Coupon Configuration
+      </div>
+
+      <h1 style="
+      margin:0;
+        font-size:42px;
+        line-height:1;
+        font-weight:900;
+        letter-spacing:-2px;
+        color:#0f172a;
+      ">
+        Create Coupon
+      </h1>
+
+      <p style="
+      margin-top:16px;
+        color:#64748b;
+        font-size:15px;
+        line-height:1.8;
+        max-width:680px;
+      ">
+        Configure promotional discounts, redemption limits, campaign duration, and coupon activity settings for this course.
+      </p>
+
+    </div>
+
+    <!-- FORM GRID -->
+    <div style="
+    position:relative;
+      z-index:2;
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+      gap:22px;
+    ">
+
+      <!-- CODE -->
+      <div style="
+      grid-column: span 2;
+      ">
+
+        <%= f.label :code,
+                    style: "
+                      display:block;
+                      margin-bottom:10px;
+                      font-size:12px;
+                      font-weight:800;
+                      letter-spacing:.12em;
+                      text-transform:uppercase;
+                      color:#64748b;
+                    "
+        %>
+
+        <%= f.text_field :code,
+                         placeholder: "SPRING2026",
+                         style: "
+                           width:100%;
+                           padding:16px 18px;
+                           border-radius:18px;
+                           border:1px solid #e2e8f0;
+                           background:rgba(255,255,255,0.92);
+                           font-size:15px;
+                           font-weight:600;
+                           color:#0f172a;
+                           outline:none;
+                           box-sizing:border-box;
+                           box-shadow: inset 0 1px 2px rgba(15,23,42,0.03);
+                         "
+        %>
+
+      </div>
+
+      <!-- TYPE -->
+      <div>
+
+        <%= f.label :discount_type,
+                    style: "
+                      display:block;
+                      margin-bottom:10px;
+                      font-size:12px;
+                      font-weight:800;
+                      letter-spacing:.12em;
+                      text-transform:uppercase;
+                      color:#64748b;
+                    "
+        %>
+
+        <%= f.select :discount_type,
+                     Coupon.discount_types.keys.map { |k| [k.titleize, k] },
+                     {},
+                     style: "
+                       width:100%;
+                       padding:16px 18px;
+                       border-radius:18px;
+                       border:1px solid #e2e8f0;
+                       background:white;
+                       font-size:15px;
+                       font-weight:600;
+                       color:#0f172a;
+                       outline:none;
+                     "
+        %>
+
+      </div>
+
+      <!-- VALUE -->
+      <div>
+
+        <%= f.label :discount_value,
+                    style: "
+                      display:block;
+                      margin-bottom:10px;
+                      font-size:12px;
+                      font-weight:800;
+                      letter-spacing:.12em;
+                      text-transform:uppercase;
+                      color:#64748b;
+                    "
+        %>
+
+        <%= f.number_field :discount_value,
+                           step: 0.01,
+                           placeholder: "20",
+                           style: "
+                             width:100%;
+                             padding:16px 18px;
+                             border-radius:18px;
+                             border:1px solid #e2e8f0;
+                             background:white;
+                             font-size:15px;
+                             font-weight:600;
+                             color:#0f172a;
+                             outline:none;
+                           "
+        %>
+
+      </div>
+
+      <!-- MAX DISCOUNT -->
+      <div>
+
+        <%= f.label :max_discount,
+                    style: "
+                      display:block;
+                      margin-bottom:10px;
+                      font-size:12px;
+                      font-weight:800;
+                      letter-spacing:.12em;
+                      text-transform:uppercase;
+                      color:#64748b;
+                    "
+        %>
+
+        <%= f.number_field :max_discount,
+                           step: 0.01,
+                           placeholder: "500",
+                           style: "
+                             width:100%;
+                             padding:16px 18px;
+                             border-radius:18px;
+                             border:1px solid #e2e8f0;
+                             background:white;
+                             font-size:15px;
+                             font-weight:600;
+                             color:#0f172a;
+                             outline:none;
+                           "
+        %>
+
+      </div>
+
+      <!-- MINIMUM -->
+      <div>
+
+        <%= f.label :minimum_purchase,
+                    style: "
+                      display:block;
+                      margin-bottom:10px;
+                      font-size:12px;
+                      font-weight:800;
+                      letter-spacing:.12em;
+                      text-transform:uppercase;
+                      color:#64748b;
+                    "
+        %>
+
+        <%= f.number_field :minimum_purchase,
+                           step: 0.01,
+                           placeholder: "1000",
+                           style: "
+                             width:100%;
+                             padding:16px 18px;
+                             border-radius:18px;
+                             border:1px solid #e2e8f0;
+                             background:white;
+                             font-size:15px;
+                             font-weight:600;
+                             color:#0f172a;
+                             outline:none;
+                           "
+        %>
+
+      </div>
+
+      <!-- LIMIT -->
+      <div>
+
+        <%= f.label :usage_limit,
+                    style: "
+                      display:block;
+                      margin-bottom:10px;
+                      font-size:12px;
+                      font-weight:800;
+                      letter-spacing:.12em;
+                      text-transform:uppercase;
+                      color:#64748b;
+                    "
+        %>
+
+        <%= f.number_field :usage_limit,
+                           placeholder: "100",
+                           style: "
+                             width:100%;
+                             padding:16px 18px;
+                             border-radius:18px;
+                             border:1px solid #e2e8f0;
+                             background:white;
+                             font-size:15px;
+                             font-weight:600;
+                             color:#0f172a;
+                             outline:none;
+                           "
+        %>
+
+      </div>
+
+      <!-- STARTS -->
+      <div>
+
+        <%= f.label :starts_at,
+                    style: "
+                      display:block;
+                      margin-bottom:10px;
+                      font-size:12px;
+                      font-weight:800;
+                      letter-spacing:.12em;
+                      text-transform:uppercase;
+                      color:#64748b;
+                    "
+        %>
+
+        <%= f.datetime_local_field :starts_at,
+                                   style: "
+                                     width:100%;
+                                     padding:16px 18px;
+                                     border-radius:18px;
+                                     border:1px solid #e2e8f0;
+                                     background:white;
+                                     font-size:15px;
+                                     font-weight:600;
+                                     color:#0f172a;
+                                     outline:none;
+                                   "
+        %>
+
+      </div>
+
+      <!-- EXPIRES -->
+      <div>
+
+        <%= f.label :expires_at,
+                    style: "
+                      display:block;
+                      margin-bottom:10px;
+                      font-size:12px;
+                      font-weight:800;
+                      letter-spacing:.12em;
+                      text-transform:uppercase;
+                      color:#64748b;
+                    "
+        %>
+
+        <%= f.datetime_local_field :expires_at,
+                                   style: "
+                                     width:100%;
+                                     padding:16px 18px;
+                                     border-radius:18px;
+                                     border:1px solid #e2e8f0;
+                                     background:white;
+                                     font-size:15px;
+                                     font-weight:600;
+                                     color:#0f172a;
+                                     outline:none;
+                                   "
+        %>
+
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div style="
+    position:relative;
+      z-index:2;
+      margin-top:30px;
+      padding-top:24px;
+      border-top:1px solid rgba(226,232,240,0.8);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:20px;
+      flex-wrap:wrap;
+    ">
+
+      <!-- ACTIVE -->
+      <label style="
+      display:flex;
+        align-items:center;
+        gap:12px;
+        cursor:pointer;
+        user-select:none;
+      ">
+
+        <div style="
+        font-size:13px;
+          font-weight:800;
+          color:#0f172a;
+          letter-spacing:.04em;
+          text-transform:uppercase;
+        ">
+          Active Coupon
+        </div>
+
+        <%= f.check_box :active,
+                        style: "
+                           width:20px;
+                           height:20px;
+                           accent-color:#4f46e5;
+                           cursor:pointer;
+                         "
+        %>
+
+      </label>
+
+      <!-- ACTIONS -->
+      <div style="
+      display:flex;
+        align-items:center;
+        gap:12px;
+      ">
+
+        <%= link_to "Cancel",
+                    admin_course_coupons_path(@course),
+                    style: "
+                      padding:14px 20px;
+                      border-radius:18px;
+                      background:white;
+                      border:1px solid #e2e8f0;
+                      color:#0f172a;
+                      text-decoration:none;
+                      font-size:14px;
+                      font-weight:800;
+                    "
+        %>
+
+        <%= f.submit "Save Coupon",
+                     style: "
+                       padding:15px 24px;
+                       border:none;
+                       border-radius:18px;
+                       background:linear-gradient(135deg, #4f46e5, #2563eb);
+                       color:white;
+                       font-size:14px;
+                       font-weight:900;
+                       letter-spacing:.03em;
+                       cursor:pointer;
+                       box-shadow:
+                         0 12px 28px rgba(79,70,229,0.24),
+                         inset 0 1px 0 rgba(255,255,255,0.2);
+                     "
+        %>
+
+      </div>
+
+    </div>
+
+  </div>
+
+<% end %>

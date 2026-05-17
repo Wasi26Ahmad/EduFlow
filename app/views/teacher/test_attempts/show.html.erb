@@ -1,0 +1,91 @@
+<h1>
+  Evaluate Attempt
+</h1>
+
+<hr>
+
+<p>
+  <strong>Student:</strong>
+  <%= @attempt.user.name %>
+</p>
+
+<p>
+  <strong>Test:</strong>
+  <%= @test.title %>
+</p>
+
+<hr>
+
+<%= form_with model: @attempt,
+              url: teacher_course_test_attempt_path(
+                @course,
+                @test,
+                @attempt
+              ),
+              method: :patch do %>
+
+  <% @attempt.answers.each do |answer| %>
+
+    <div style="margin-bottom: 40px;">
+
+      <h3>
+        Question
+      </h3>
+
+      <p>
+        <%= answer.question.content %>
+      </p>
+
+      <% if !answer.question.auto_check? %>
+
+        <p>
+          <strong>Student Answer:</strong>
+        </p>
+
+        <div style="padding: 10px;
+          border: 1px solid #ccc;">
+
+          <%= answer.text_answer %>
+
+        </div>
+
+        <br>
+
+        <p>
+          Max Marks:
+          <%= answer.question.marks %>
+        </p>
+
+        <label>
+          Give Marks
+        </label>
+
+        <br>
+
+        <input type="number"
+               step="0.5"
+               max="<%= answer.question.marks %>"
+               name="marks[<%= answer.id %>]">
+
+      <% else %>
+
+        <p>
+          MCQ already auto graded.
+        </p>
+
+        <p>
+          Obtained:
+          <%= answer.obtained_marks %>
+        </p>
+
+      <% end %>
+
+    </div>
+
+    <hr>
+
+  <% end %>
+
+  <%= submit_tag "Finalize Evaluation" %>
+
+<% end %>

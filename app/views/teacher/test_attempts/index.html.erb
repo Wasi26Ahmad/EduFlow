@@ -1,0 +1,41 @@
+<%= content_for :title, "Attempts - #{@test.title}" %>
+
+<div
+  id="teacher-attempts-root"
+  data-props="<%= {
+                    course_id: @course.id,
+                    test: {
+                      id: @test.id,
+                      title: @test.title
+                    },
+
+                    attempts: @attempts.map do |attempt|
+                      {
+                        id: attempt.id,
+
+                        # UPDATED:
+                        student_email: attempt.user&.email,
+
+                        status: attempt.status,
+
+                        marks:
+                          attempt.total_marks_obtained,
+
+                        evaluate_path:
+                          teacher_course_test_attempt_path(
+                            @course,
+                            @test,
+                            attempt
+                          ),
+
+                        submitted_at: (
+                          attempt.updated_at&.strftime(
+                            "%b %d, %Y %I:%M %p"
+                          )
+                        )
+                      }
+                    end
+                  }.to_json %>"
+></div>
+
+<%= vite_javascript_tag "teacher_attempts.jsx" %>

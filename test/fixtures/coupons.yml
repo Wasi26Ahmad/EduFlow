@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  code: MyString
+  discount_type: 1
+  discount_value: 9.99
+  max_discount: 9.99
+  minimum_purchase: 9.99
+  usage_limit: 1
+  used_count: 1
+  starts_at: 2026-05-10 11:21:48
+  expires_at: 2026-05-10 11:21:48
+  active: false
+  created_by: one
+  course: one
+
+two:
+  code: MyString
+  discount_type: 1
+  discount_value: 9.99
+  max_discount: 9.99
+  minimum_purchase: 9.99
+  usage_limit: 1
+  used_count: 1
+  starts_at: 2026-05-10 11:21:48
+  expires_at: 2026-05-10 11:21:48
+  active: false
+  created_by: two
+  course: two

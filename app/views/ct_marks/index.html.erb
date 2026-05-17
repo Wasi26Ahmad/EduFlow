@@ -1,0 +1,57 @@
+<h1>CT Marks</h1>
+
+<hr>
+
+<% if @attempts.any? %>
+
+  <% @attempts.each do |attempt| %>
+
+    <div style="margin-bottom: 40px;">
+
+      <h2>
+        <%= attempt.test.title %>
+      </h2>
+
+      <p>
+        <strong>Course:</strong>
+        <%= attempt.test.course.title %>
+      </p>
+
+      <p>
+        <strong>Semester:</strong>
+        <%= attempt.test.semester %>
+      </p>
+
+      <p>
+        <strong>Status:</strong>
+        <%= attempt.status %>
+      </p>
+
+      <p>
+        <strong>Obtained Marks:</strong>
+        <%= attempt.total_marks_obtained %>
+        /
+        <%= attempt.test.total_marks %>
+      </p>
+
+      <p>
+        <strong>Percentage:</strong>
+        <%= attempt.percentage.round(2) %>%
+      </p>
+
+      <p>
+        <strong>Submitted At:</strong>
+        <%= attempt.submitted_at %>
+      </p>
+
+    </div>
+
+    <hr>
+
+  <% end %>
+
+<% else %>
+
+  <p>No CT marks available.</p>
+
+<% end %>

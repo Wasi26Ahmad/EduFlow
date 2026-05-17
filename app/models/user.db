@@ -1,0 +1,8 @@
+class User < ApplicationRecord
+  enum :role, {
+    super_admin: 0,
+    admin: 1,
+    teacher: 2,
+    student: 3
+  }
+end

@@ -1,0 +1,42 @@
+<div
+  id="enrollments-dashboard"
+  data-props="<%= {
+                    enrollments: @enrollments.map do |e|
+                      {
+                        id: e.id,
+                        status: e.status,
+
+                        # IMPORTANT:
+                        # include course.id for tests routing
+                        course: {
+                          id: e.course.id,
+                          title: e.course.title,
+                          code: e.course.code,
+                          semester: e.course.semester,
+                          price: e.course.price
+                        }
+                      }
+                    end,
+
+                    current_user: {
+                      email: current_user.email,
+                      semester: (
+                        current_user.respond_to?(:semester) &&
+                          current_user.semester.present?
+                      ) ? current_user.semester : nil
+                    },
+
+                    stats: {
+                      total: @enrollments.count,
+                      approved: @enrollments.where(status: :approved).count
+                    },
+
+                    pagination: {
+                      html: pagy_nav(@pagy)
+                    }
+                  }.to_json %>"
+></div>
+
+<%= vite_react_refresh_tag %>
+<%= vite_client_tag %>
+<%= vite_javascript_tag "enrollments.jsx" %>

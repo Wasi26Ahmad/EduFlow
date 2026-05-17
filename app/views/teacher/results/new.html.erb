@@ -1,0 +1,45 @@
+<div id="teacher-marks-upload-root"
+     data-page="<%= {
+                      courses: @courses.map { |c|
+                        {
+                          id: c.id,
+                          title: c.title
+                        }
+                      },
+                      selectedCourse: @selected_course.present? ? {
+                        id: @selected_course.id,
+                        title: @selected_course.title,
+                        enrollmentsCount: @selected_course.enrollments.count
+                      } : nil,
+                      students: @selected_course.present? ? @selected_course.enrollments.includes(:user).map { |enrollment|
+                        student = enrollment.user
+                        next unless student.present?
+
+                        existing_result = @results&.find { |r| r.user_id == student.id }
+
+                        {
+                          id: student.id,
+                          name: student.name,
+                          email: student.email,
+                          existing_marks: existing_result&.marks
+                        }
+                      }.compact : [],
+                      analytics: {
+                        average_marks: @average_marks || 0,
+                        highest_marks: @highest_marks || 0,
+                        lowest_marks: @lowest_marks || 0
+                      },
+                      chart: {
+                        labels: (@results || []).map { |r| r.user&.name.to_s },
+                        marks: (@results || []).map { |r| r.marks.to_f }
+                      },
+                      routes: {
+                        load_students_path: new_teacher_result_path,
+                        submit_marks_path: teacher_results_path,
+                        bulk_upload_path: new_teacher_bulk_marks_upload_path,
+                        bulk_upload_with_course_path: @selected_course.present? ? new_teacher_bulk_marks_upload_path(course_id: @selected_course.id) : new_teacher_bulk_marks_upload_path
+                      }
+                    }.to_json %>">
+</div>
+
+<%= vite_javascript_tag "teacher_marks_upload.jsx" %>

@@ -1,0 +1,2 @@
+module Teacher::TestAttemptsHelper
+end

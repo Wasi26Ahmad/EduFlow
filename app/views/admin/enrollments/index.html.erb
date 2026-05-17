@@ -1,0 +1,27 @@
+<%
+  enrollments_data = {
+    enrollments: @enrollments.map do |e|
+      {
+        id: e.id,
+        email: e.user.email,
+        initial: e.user.email.first.upcase,
+        course_title: e.course.title,
+        status: e.status,
+        approve_path: admin_enrollment_path(e, status: :approved),
+        reject_path: admin_enrollment_path(e, status: :rejected)
+      }
+    end,
+    count: @enrollments.count,
+    empty: @enrollments.empty?,
+    pagy: pagy_nav(@pagy)
+  }
+%>
+
+<script>
+    window.PENDING_ENROLLMENTS_DATA =
+    <%= raw(enrollments_data.to_json) %>;
+</script>
+
+<div id="pending-enrollments-dashboard"></div>
+
+<%= vite_javascript_tag "admin_pending_enrollments.jsx" %>

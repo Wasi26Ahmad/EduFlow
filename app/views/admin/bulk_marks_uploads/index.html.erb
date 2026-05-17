@@ -1,0 +1,32 @@
+<h1>Pending Bulk Marks Uploads</h1>
+<% @uploads.each do |u| %>
+  <div style="
+  background:white;
+    border:1px solid #e5e7eb;
+    padding:16px;
+    border-radius:12px;
+    margin-bottom:16px;
+  ">
+    <p>
+      <strong>Teacher:</strong>
+      <%= u.teacher.email %>
+    </p>
+    <p>
+      <strong>Course:</strong>
+      <%= u.course.title %>
+    </p>
+    <p>
+      <strong>Status:</strong>
+      <%= u.status %>
+    </p>
+    <%= link_to "View Upload",
+                admin_bulk_marks_upload_path(u) %>
+    <br><br>
+    <%= button_to "Approve Upload",
+                  approve_admin_bulk_marks_upload_path(u),
+                  method: :patch %>
+    <%= button_to "Reject Upload",
+                  reject_admin_bulk_marks_upload_path(u),
+                  method: :patch %>
+  </div>
+<% end %>

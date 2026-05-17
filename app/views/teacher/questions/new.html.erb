@@ -1,0 +1,15 @@
+<%= content_for :title, "Add Question" %>
+
+<%= vite_javascript_tag "teacher_question_create.jsx" %>
+
+<%
+  props = {
+    submit_url: teacher_course_test_questions_path(@course, @test),
+    question_types: Question.question_types.keys
+  }
+%>
+
+<div
+  id="teacher-question-create-root"
+  data-props='<%= json_escape(props.to_json) %>'>
+</div>

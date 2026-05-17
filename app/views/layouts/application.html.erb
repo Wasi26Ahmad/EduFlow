@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EduFlow</title>
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+
+  <%= vite_client_tag %>
+  <%= vite_react_refresh_tag %>
+  <%= vite_javascript_tag 'application' %>
+</head>
+
+<body style="
+margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #111827;
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at top left,
+        rgba(59,130,246,0.10),
+        transparent 30%
+      ),
+      radial-gradient(
+        circle at bottom right,
+          rgba(147,197,253,0.14),
+          transparent 35%
+        ),
+      linear-gradient(
+        135deg,
+          #f8fbff 0%,
+          #eef5ff 40%,
+          #f8fafc 100%
+        );
+">
+
+<!-- NAVBAR -->
+
+<header style="
+background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(12px);
+
+  border-bottom: 1px solid rgba(226,232,240,0.9);
+
+  padding: 14px 28px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  box-shadow: 0 8px 30px rgba(37,99,235,0.04);
+">
+
+  <!-- Left -->
+
+  <%= link_to root_path,
+              style: "
+        font-weight: 800;
+        font-size: 20px;
+        text-decoration: none;
+
+        background: linear-gradient(
+          135deg,
+          #2563eb 0%,
+          #3b82f6 50%,
+          #60a5fa 100%
+        );
+
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+
+        letter-spacing: -0.5px;
+      " do %>
+
+    Edu Flow
+
+  <% end %>
+
+  <!-- Right -->
+
+  <div style="
+  display: flex;
+    align-items: center;
+    gap: 12px;
+  ">
+
+    <% if user_signed_in? %>
+
+      <span style="
+      font-size: 13px;
+        color: #64748b;
+        font-weight: 500;
+      ">
+        <%= current_user.email %>
+      </span>
+
+      <%= button_to "Logout",
+                    destroy_user_session_path,
+                    method: :delete,
+                    data: { turbo_method: :delete },
+                    style: "
+                      padding: 8px 14px;
+
+                      background: linear-gradient(
+                        135deg,
+                        #ef4444,
+                        #dc2626
+                      );
+
+                      color: white;
+
+                      border: none;
+                      border-radius: 10px;
+
+                      font-size: 13px;
+                      font-weight: 600;
+
+                      cursor: pointer;
+
+                      box-shadow:
+                        0 8px 20px rgba(239,68,68,0.18);
+                    " %>
+
+    <% else %>
+
+      <%= link_to "Login",
+                  new_user_session_path,
+                  style: "
+                    font-size: 13px;
+                    font-weight: 600;
+
+                    color: #2563eb;
+
+                    text-decoration: none;
+                  " %>
+
+      <%= link_to "Sign up",
+                  new_user_registration_path,
+                  style: "
+                    font-size: 13px;
+
+                    padding: 8px 14px;
+
+                    background: linear-gradient(
+                      135deg,
+                      #2563eb,
+                      #3b82f6
+                    );
+
+                    color: white;
+
+                    border-radius: 10px;
+
+                    text-decoration: none;
+                    font-weight: 600;
+
+                    box-shadow:
+                      0 8px 20px rgba(37,99,235,0.16);
+                  " %>
+
+    <% end %>
+
+  </div>
+</header>
+
+<!-- ALERTS -->
+
+<% if notice.present? %>
+
+  <div style="
+  margin: 18px auto;
+
+    max-width: 900px;
+
+    padding: 12px 16px;
+
+    background: rgba(236,253,245,0.9);
+
+    border: 1px solid #10b981;
+
+    color: #065f46;
+
+    border-radius: 12px;
+
+    backdrop-filter: blur(8px);
+
+    box-shadow:
+      0 10px 25px rgba(16,185,129,0.08);
+  ">
+    <%= notice %>
+  </div>
+
+<% end %>
+
+<% if alert.present? %>
+
+  <div style="
+  margin: 18px auto;
+
+    max-width: 900px;
+
+    padding: 12px 16px;
+
+    background: rgba(254,242,242,0.9);
+
+    border: 1px solid #ef4444;
+
+    color: #991b1b;
+
+    border-radius: 12px;
+
+    backdrop-filter: blur(8px);
+
+    box-shadow:
+      0 10px 25px rgba(239,68,68,0.08);
+  ">
+    <%= alert %>
+  </div>
+
+<% end %>
+
+<!-- MAIN CONTENT -->
+
+<main style="
+max-width: 1100px;
+  margin: 34px auto;
+  padding: 0 18px;
+">
+  <%= yield %>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+<div id="admin-dashboard-root"
+     data-dashboard='<%= {
+                           currentUser: {
+                             email: current_user.email
+                           },
+                           routes: {
+                             users: admin_users_path,
+                             enrollments: admin_enrollments_path,
+                             results: admin_results_path,
+                             analytics: admin_course_catalogue_path,
+                             courses: courses_path
+                           }
+                         }.to_json %>'>
+</div>
+
+<%= vite_javascript_tag "admin_dashboard.jsx" %>

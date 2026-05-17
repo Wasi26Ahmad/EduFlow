@@ -1,0 +1,39 @@
+<div
+  id="enrollment-requests-page"
+  data-props="<%= {
+                    enrollments: @enrollments.map do |e|
+                      {
+                        id: e.id,
+                        status: e.status,
+                        student_email: e.user.email,
+                        course_title: e.course.title,
+                        course_code: e.course.code,
+                        semester: (
+                          e.course.respond_to?(:semester)
+                          ? e.course.semester
+                          : nil
+                        ),
+                        teacher_email: e.course.teacher.email,
+                        approve_path: enrollment_path(e, status: :approved),
+                        reject_path: enrollment_path(e, status: :rejected)
+                      }
+                    end,
+
+                    total_requests: @enrollments.count,
+
+                    pending_requests: @enrollments
+                      .where(status: :pending)
+                      .count,
+
+                    is_admin: (
+                      current_user.admin? ||
+                        current_user.super_admin?
+                    ),
+
+                    csrf_token: form_authenticity_token
+                  }.to_json %>"
+></div>
+
+<%= vite_react_refresh_tag %>
+<%= vite_client_tag %>
+<%= vite_javascript_tag "enrollment_requests.jsx" %>

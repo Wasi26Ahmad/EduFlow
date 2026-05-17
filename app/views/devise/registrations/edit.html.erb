@@ -1,0 +1,150 @@
+<div style="
+max-width: 520px;
+  margin: 40px auto;
+  font-family: system-ui, -apple-system, sans-serif;
+">
+
+  <!-- Header -->
+  <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 6px;">
+    Edit Account
+  </h2>
+
+  <p style="color: #6b7280; font-size: 13px; margin-bottom: 20px;">
+    Update your email and password
+  </p>
+
+  <!-- Card -->
+  <div style="
+  background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  ">
+
+    <%= form_for(resource,
+                 as: resource_name,
+                 url: registration_path(resource_name),
+                 html: { method: :put }) do |f| %>
+
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <!-- Email -->
+      <div style="margin-bottom: 14px;">
+        <%= f.label :email, style: "font-size: 13px; color:#374151;" %>
+        <%= f.email_field :email,
+                          autofocus: true,
+                          autocomplete: "email",
+                          style: "width:100%; padding:10px; margin-top:6px; border:1px solid #e5e7eb; border-radius:8px;" %>
+      </div>
+
+      <!-- Confirmation notice -->
+      <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+        <div style="
+        font-size: 12px;
+          color: #b45309;
+          background: #fef3c7;
+          padding: 8px;
+          border-radius: 8px;
+          margin-bottom: 12px;
+        ">
+          Currently waiting confirmation for: <strong><%= resource.unconfirmed_email %></strong>
+        </div>
+      <% end %>
+
+      <!-- Password -->
+      <div style="margin-bottom: 14px;">
+        <%= f.label :password, style: "font-size: 13px; color:#374151;" %>
+        <div style="font-size: 12px; color:#6b7280;">
+          Leave blank if you don’t want to change it
+        </div>
+
+        <%= f.password_field :password,
+                             autocomplete: "new-password",
+                             style: "width:100%; padding:10px; margin-top:6px; border:1px solid #e5e7eb; border-radius:8px;" %>
+
+        <% if @minimum_password_length %>
+          <div style="font-size: 12px; color:#6b7280;">
+            <%= @minimum_password_length %> characters minimum
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Confirm Password -->
+      <div style="margin-bottom: 14px;">
+        <%= f.label :password_confirmation, style: "font-size: 13px; color:#374151;" %>
+        <%= f.password_field :password_confirmation,
+                             autocomplete: "new-password",
+                             style: "width:100%; padding:10px; margin-top:6px; border:1px solid #e5e7eb; border-radius:8px;" %>
+      </div>
+
+      <!-- Current Password -->
+      <div style="margin-bottom: 18px;">
+        <%= f.label :current_password, style: "font-size: 13px; color:#374151;" %>
+        <div style="font-size: 12px; color:#6b7280;">
+          Required to confirm changes
+        </div>
+
+        <%= f.password_field :current_password,
+                             autocomplete: "current-password",
+                             style: "width:100%; padding:10px; margin-top:6px; border:1px solid #e5e7eb; border-radius:8px;" %>
+      </div>
+
+      <!-- Update Button -->
+      <div>
+        <%= f.submit "Update Account",
+                     style: "
+                width: 100%;
+                padding: 10px;
+                background: #2563eb;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+              " %>
+      </div>
+
+    <% end %>
+
+  </div>
+
+  <!-- Danger Zone -->
+  <div style="
+  margin-top: 24px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    padding: 16px;
+  ">
+
+    <h3 style="font-size: 16px; font-weight: 700; color: #991b1b;">
+      Danger Zone
+    </h3>
+
+    <p style="font-size: 13px; color: #7f1d1d; margin-bottom: 12px;">
+      Once you delete your account, there is no going back.
+    </p>
+
+    <%= button_to "Delete Account",
+                  registration_path(resource_name),
+                  method: :delete,
+                  data: { turbo_confirm: "Are you sure?" },
+                  style: "
+                    padding: 8px 12px;
+                    background: #ef4444;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                  " %>
+
+  </div>
+
+  <!-- Back -->
+  <div style="margin-top: 16px; text-align: center;">
+    <%= link_to "← Back", :back, style: "color:#2563eb; text-decoration:none; font-size:13px;" %>
+  </div>
+
+</div>

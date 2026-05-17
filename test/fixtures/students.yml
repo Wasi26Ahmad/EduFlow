@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  student_id: MyString
+  address: MyString
+  gender: MyString
+  current_semester: 1
+
+two:
+  user: two
+  student_id: MyString
+  address: MyString
+  gender: MyString
+  current_semester: 1

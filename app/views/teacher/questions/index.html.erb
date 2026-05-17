@@ -1,0 +1,43 @@
+<%= content_for :title, "Questions - #{@test.title}" %>
+
+<%
+  props = {
+    test: {
+      id: @test.id,
+      title: @test.title
+    },
+
+    add_question_path: new_teacher_course_test_question_path(
+      @course,
+      @test
+    ),
+
+    questions: @questions.each_with_index.map do |question, index|
+      {
+        id: question.id,
+        index: index + 1,
+        question_type: question.question_type,
+        content: question.content,
+        marks: question.marks,
+        auto_check: question.auto_check,
+        correct_answer: question.correct_answer,
+        mcq: question.mcq?,
+
+        options: question.question_options.map do |option|
+          {
+            id: option.id,
+            content: option.content,
+            correct: option.correct
+          }
+        end
+      }
+    end
+  }
+%>
+
+<div
+  id="teacher-questions-root"
+  data-props="<%= json_escape(props.to_json) %>">
+</div>
+
+<%= vite_javascript_tag "teacher_questions.jsx" %>

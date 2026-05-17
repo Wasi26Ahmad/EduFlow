@@ -1,0 +1,16 @@
+<div id="profile-page-root"
+     data-user="<%= {
+                      name: @user.name,
+                      email: @user.email,
+                      student_id: @user.student_id,
+                      phone: @user.phone,
+                      address: @user.address,
+                      current_semester: @user.current_semester,
+                      cgpa: @user.cgpa,
+                      edit_profile_path: edit_profile_path
+                    }.to_json %>">
+</div>
+
+<%= vite_react_refresh_tag %>
+<%= vite_client_tag %>
+<%= vite_javascript_tag "profile_page.jsx" %>
