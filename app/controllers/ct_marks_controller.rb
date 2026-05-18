@@ -6,11 +6,15 @@ class CtMarksController < ApplicationController
     @course = Course.find(params[:course_id])
 
     unless current_user.student?
-      redirect_to root_path, alert: "Access denied"
+      redirect_to root_path,
+                  alert: "Access denied"
       return
     end
 
-    enrolled = current_user.enrollments.exists?(course: @course)
+    enrolled =
+      current_user.enrollments.exists?(
+        course: @course
+      )
 
     unless enrolled
       redirect_to courses_path,
@@ -18,13 +22,17 @@ class CtMarksController < ApplicationController
       return
     end
 
-    @tests = @course.tests.where(finalized: true)
+    @attempts =
+      TestAttempt
+        .includes(:test)
+        .joins(:test)
+        .where(
+          user: current_user,
+          status: :evaluated,
+          tests: {
+            course_id: @course.id
+          }
+        )
 
-    @attempts = TestAttempt
-                  .includes(:test)
-                  .where(
-                    user: current_user,
-                    test: @tests
-                  )
   end
 end

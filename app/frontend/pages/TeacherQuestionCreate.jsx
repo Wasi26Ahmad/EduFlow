@@ -90,8 +90,7 @@ export default function TeacherQuestionCreate({
                             margin: 0,
                         }}
                     >
-                        Add interactive questions with dynamic
-                        answer fields.
+                        Add questions and set evaluation method
                     </p>
                 </div>
 

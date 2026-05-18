@@ -1,53 +1,26 @@
-<h1>Available Tests</h1>
+<%= content_for :title, "Available Tests" %>
 
-<hr>
+<div
+      id="student-tests-root"
+      data-props="<%= json_escape(
+                        {
+                          tests: @tests.map do |test|
+                                {
+                                  id: test.id,
+                                  title: test.title,
+                                  start_time: test.start_time&.strftime('%b %d, %Y • %I:%M %p'),
+                                  end_time: test.end_time&.strftime('%b %d, %Y • %I:%M %p'),
+                                  duration_minutes: test.duration_minutes,
+                                  total_marks: test.total_marks,
+                                  course: {
+                                    id: test.course.id,
+                                    title: test.course.title
+                                  },
+                                  url: course_test_path(test.course, test)
+                                }
+                          end
+                        }.to_json
+                      ) %>"
+></div>
 
-<% if @tests.any? %>
-
-  <% @tests.each do |test| %>
-
-    <div style="margin-bottom: 30px;">
-
-      <h2>
-        <%= test.title %>
-      </h2>
-
-      <p>
-        <strong>Course:</strong>
-        <%= test.course.title %>
-      </p>
-
-      <p>
-        <strong>Start:</strong>
-        <%= test.start_time %>
-      </p>
-
-      <p>
-        <strong>End:</strong>
-        <%= test.end_time %>
-      </p>
-
-      <p>
-        <strong>Duration:</strong>
-        <%= test.duration_minutes %> minutes
-      </p>
-
-      <p>
-        <strong>Total Marks:</strong>
-        <%= test.total_marks %>
-      </p>
-
-      <%= link_to "View Test",
-                  course_test_path(test.course, test) %>
-
-    </div>
-
-    <hr>
-
-  <% end %>
-
-<% else %>
-
-  <p>No available tests.</p>
-
-<% end %>
+<%= vite_javascript_tag "student-tests.jsx" %>

@@ -496,9 +496,7 @@ export default function TeacherQuestionsPage({
                                 lineHeight: 1.7,
                             }}
                         >
-                            Manage, review and organize all questions with
-                            blazing-fast React rendering, smooth animations and
-                            optimized UI transitions.
+                            Manage, review and organize all questions
                         </p>
                     </div>
 

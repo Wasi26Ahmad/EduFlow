@@ -22,6 +22,11 @@ function EnrollmentCard({ enrollment, index }) {
         ? `/courses/${courseId}/tests`
         : "#";
 
+    // NEW: CT Marks path
+    const ctMarksPath = courseId
+        ? `/courses/${courseId}/ct_marks`
+        : "#";
+
     return (
         <div
             style={{
@@ -176,7 +181,7 @@ function EnrollmentCard({ enrollment, index }) {
                     />
                 </div>
 
-                {/* TEST SECTION */}
+                {/* ACTIONS SECTION */}
                 <div
                     style={{
                         marginTop: 18,
@@ -193,6 +198,7 @@ function EnrollmentCard({ enrollment, index }) {
                             alignItems: "center",
                             gap: 12,
                             flexWrap: "wrap",
+                            marginBottom: 16,
                         }}
                     >
                         <div>
@@ -246,7 +252,74 @@ function EnrollmentCard({ enrollment, index }) {
                                 transition: "0.2s",
                             }}
                         >
-                            📝 Open Tests
+                             Open Tests
+                        </button>
+                    </div>
+
+                    <div
+                        style={{
+                            marginTop: 14,
+                            paddingTop: 14,
+                            borderTop: "1px solid #e2e8f0",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: 12,
+                            flexWrap: "wrap",
+                        }}
+                    >
+                        <div>
+                            <div
+                                style={{
+                                    fontSize: 11,
+                                    fontWeight: 800,
+                                    color: "#64748b",
+                                    textTransform: "uppercase",
+                                    letterSpacing: ".4px",
+                                    marginBottom: 6,
+                                }}
+                            >
+                                CT RESULTS
+                            </div>
+
+                            <div
+                                style={{
+                                    fontSize: 14,
+                                    fontWeight: 700,
+                                    color: "#0f172a",
+                                }}
+                            >
+                                View obtained CT marks
+                            </div>
+                        </div>
+
+                        <button
+                            disabled={!courseId}
+                            onClick={() => {
+                                if (courseId) {
+                                    window.location.href =
+                                        ctMarksPath;
+                                }
+                            }}
+                            style={{
+                                border: "none",
+                                background: courseId
+                                    ? "linear-gradient(135deg,#7c3aed,#a855f7)"
+                                    : "#cbd5e1",
+                                color: "white",
+                                padding: "10px 16px",
+                                borderRadius: 12,
+                                fontSize: 12,
+                                fontWeight: 800,
+                                cursor: courseId
+                                    ? "pointer"
+                                    : "not-allowed",
+                                boxShadow:
+                                    "0 6px 16px rgba(124,58,237,0.18)",
+                                transition: "0.2s",
+                            }}
+                        >
+                            CT Marks
                         </button>
                     </div>
                 </div>

@@ -538,12 +538,7 @@ export default function TeacherAttemptsPage({
                                 lineHeight: 1.6,
                             }}
                         >
-                            Evaluate submissions
-                            faster with a modern
-                            animated teacher
-                            dashboard optimized
-                            for smooth rendering
-                            and quick review.
+                            Evaluate submissions and get marks
                         </p>
 
                         <div

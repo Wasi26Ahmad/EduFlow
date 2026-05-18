@@ -21,33 +21,39 @@ class Teacher::TestAttemptsController < ApplicationController
       )
 
   end
-
   def update
 
     @attempt =
-      @test.test_attempts.find(
-        params[:id]
-      )
+      @test.test_attempts.find(params[:id])
 
-    total = @attempt.total_marks_obtained
+    if @test.finalized?
+      redirect_back fallback_location: root_path,
+                    alert: "Evaluation already finalized"
+      return
+    end
 
     @attempt.answers.each do |answer|
 
       next unless answer.question.short?
 
       marks =
-        params[:marks][answer.id.to_s].to_f
+        params.dig(:marks, answer.id.to_s).to_f
 
       answer.update!(
         obtained_marks: marks
       )
 
-      total += marks
-
     end
 
+    total =
+      @attempt.answers.sum(:obtained_marks)
+
     percentage =
-      (total / @test.total_marks) * 100
+      if @test.total_marks.to_f > 0
+        (total / @test.total_marks) * 100
+      else
+        0
+      end
 
     @attempt.update!(
       total_marks_obtained: total,
