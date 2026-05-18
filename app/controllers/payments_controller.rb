@@ -50,13 +50,11 @@ class PaymentsController < ApplicationController
            usage_available &&
            minimum_purchase_ok
 
-          # Percentage Discount
           if coupon.percentage?
 
             discount_amount =
               (original_amount * coupon.discount_value.to_f) / 100
 
-            # Max Discount Cap
             if coupon.max_discount.present?
               discount_amount =
                 [
@@ -66,7 +64,6 @@ class PaymentsController < ApplicationController
             end
 
           else
-            # Fixed Discount
             discount_amount =
               coupon.discount_value.to_f
           end
@@ -149,7 +146,6 @@ class PaymentsController < ApplicationController
     }
 
     response = HTTParty.post(url, body: payload)
-
     Rails.logger.info "SSLCOMMERZ RESPONSE:"
     Rails.logger.info response.body
 

@@ -79,6 +79,20 @@ class Teacher::TestsController < ApplicationController
     end
   end
 
+  def finalize
+    @test = Test.find(params[:id])
+
+    unless @test.teacher == current_user
+      redirect_to root_path, alert: "Unauthorized"
+      return
+    end
+
+    @test.update(finalized: true)
+
+    redirect_to teacher_course_test_attempts_path(@test.course, @test),
+                notice: "Evaluation finalized successfully."
+  end
+
   def test_params
     params.require(:test).permit(
       :title,
