@@ -25,6 +25,8 @@ gem "rack-attack"
 
 gem "httparty"
 
+gem "redis"
+
 # Gemfile
 gem "gretel"
 

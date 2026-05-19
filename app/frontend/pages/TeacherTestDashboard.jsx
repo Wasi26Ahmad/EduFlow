@@ -102,10 +102,57 @@ function InfoTile({ title, value }) {
     );
 }
 
-function ActionButton({ href, label, gradient }) {
+function ActionButton({
+                          href,
+                          label,
+                          gradient,
+                          method = null,
+                          confirmMessage = null,
+                      }) {
+    const handleClick = (e) => {
+        if (confirmMessage) {
+            const confirmed = window.confirm(confirmMessage);
+
+            if (!confirmed) {
+                e.preventDefault();
+                return;
+            }
+        }
+
+        if (method && method.toLowerCase() !== "get") {
+            e.preventDefault();
+
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = href;
+
+            const csrfToken = document
+                .querySelector('meta[name="csrf-token"]')
+                ?.getAttribute("content");
+
+            if (csrfToken) {
+                const csrfInput = document.createElement("input");
+                csrfInput.type = "hidden";
+                csrfInput.name = "authenticity_token";
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+            }
+
+            const methodInput = document.createElement("input");
+            methodInput.type = "hidden";
+            methodInput.name = "_method";
+            methodInput.value = method.toUpperCase();
+            form.appendChild(methodInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    };
+
     return (
         <a
             href={href}
+            onClick={handleClick}
             style={{
                 background: gradient,
                 color: "white",
@@ -195,15 +242,21 @@ function TestCard({ test, index }) {
                                 display: "inline-flex",
                                 alignItems: "center",
                                 gap: "6px",
-                                background: "rgba(99,102,241,0.08)",
-                                color: "#4338ca",
+                                background: test.finalized
+                                    ? "rgba(16,185,129,0.10)"
+                                    : "rgba(99,102,241,0.08)",
+                                color: test.finalized
+                                    ? "#047857"
+                                    : "#4338ca",
                                 borderRadius: "999px",
                                 padding: "6px 11px",
                                 fontWeight: 700,
                                 fontSize: "10px",
                             }}
                         >
-                            Active Assessment
+                            {test.finalized
+                                ? "Finalized"
+                                : "Active Assessment"}
                         </div>
                     </div>
 
@@ -280,6 +333,45 @@ function TestCard({ test, index }) {
                         label="View Attempts"
                         gradient="linear-gradient(135deg, #6366f1, #4f46e5)"
                     />
+
+                    {!test.finalized && (
+                        <ActionButton
+                            href={test.finalize_path}
+                            label="Finalize Test"
+                            method="patch"
+                            confirmMessage="Are you sure you want to finalize this test?"
+                            gradient="linear-gradient(135deg, #10b981, #059669)"
+                        />
+                    )}
+
+                    {test.finalized && (
+                        <div
+                            style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                padding: "10px 15px",
+                                borderRadius: "12px",
+                                background:
+                                    "rgba(16,185,129,0.10)",
+                                color: "#047857",
+                                fontWeight: 800,
+                                fontSize: "12px",
+                                border:
+                                    "1px solid rgba(16,185,129,0.14)",
+                            }}
+                        >
+                            Test Finalized
+                        </div>
+                    )}
+
+                    <ActionButton
+                        href={test.delete_path}
+                        label="Delete Test"
+                        method="delete"
+                        confirmMessage="Are you sure you want to permanently delete this test?"
+                        gradient="linear-gradient(135deg, #ef4444, #dc2626)"
+                    />
                 </div>
             </div>
         </div>
@@ -287,7 +379,8 @@ function TestCard({ test, index }) {
 }
 
 function CourseCard({ course, index }) {
-    const [expanded, setExpanded] = useState(true);
+    // CHANGED: default is now false instead of true
+    const [expanded, setExpanded] = useState(false);
 
     return (
         <div

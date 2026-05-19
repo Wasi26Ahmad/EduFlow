@@ -7,19 +7,61 @@
                           title: course.title,
                           code: course.code,
                           semester: course.semester,
-                          new_test_path: new_teacher_course_test_path(course),
-                          tests: course.tests.map do |test|
-                            {
-                              id: test.id,
-                              title: test.title,
-                              total_marks: test.total_marks,
-                              duration_minutes: test.duration_minutes,
-                              start_time: test.start_time.strftime('%b %d, %Y • %I:%M %p'),
-                              end_time: test.end_time.strftime('%b %d, %Y • %I:%M %p'),
-                              manage_questions_path: teacher_course_test_questions_path(course, test),
-                              view_attempts_path: teacher_course_test_attempts_path(course, test)
-                            }
-                          end
+
+                          new_test_path:
+                            new_teacher_course_test_path(course),
+
+                          tests:
+                            course.tests.map do |test|
+                              {
+                                id: test.id,
+
+                                title: test.title,
+
+                                total_marks:
+                                  test.total_marks,
+
+                                duration_minutes:
+                                  test.duration_minutes,
+
+                                start_time:
+                                  test.start_time.strftime(
+                                    '%b %d, %Y • %I:%M %p'
+                                  ),
+
+                                end_time:
+                                  test.end_time.strftime(
+                                    '%b %d, %Y • %I:%M %p'
+                                  ),
+
+                                finalized:
+                                  test.finalized,
+
+                                manage_questions_path:
+                                  teacher_course_test_questions_path(
+                                    course,
+                                    test
+                                  ),
+
+                                view_attempts_path:
+                                  teacher_course_test_attempts_path(
+                                    course,
+                                    test
+                                  ),
+
+                                finalize_path:
+                                  finalize_teacher_course_test_path(
+                                    course,
+                                    test
+                                  ),
+
+                                delete_path:
+                                  teacher_course_test_path(
+                                    course,
+                                    test
+                                  )
+                              }
+                            end
                         }
                       end.to_json
                     ) %>"

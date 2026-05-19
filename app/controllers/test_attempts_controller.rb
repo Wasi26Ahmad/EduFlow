@@ -16,6 +16,7 @@ class TestAttemptsController < ApplicationController
   end
 
   def update
+
     if Time.current > @attempt.expires_at
 
       auto_submit
@@ -36,24 +37,36 @@ class TestAttemptsController < ApplicationController
       return
     end
 
+    @attempt.answers.destroy_all
+
     total_obtained = 0.0
 
-    @attempt.test.questions.each do |question|
+    test =
+      @attempt.test
+
+    questions =
+      test.questions.includes(:question_options)
+
+    questions.each do |question|
 
       answer_value =
         params[:answers]&.[](question.id.to_s)
 
+      next if answer_value.blank?
+
       if question.auto_check?
+
+        cached_answer =
+          fetch_cached_answer(
+            test,
+            question
+          )
 
         if question.mcq?
 
-          selected_option =
-            QuestionOption.find_by(
-              id: answer_value
-            )
-
           correct =
-            selected_option&.correct || false
+            cached_answer.to_s ==
+            answer_value.to_s
 
           obtained =
             correct ? question.marks.to_f : 0.0
@@ -62,22 +75,32 @@ class TestAttemptsController < ApplicationController
 
           @attempt.answers.create!(
             question: question,
-            selected_option: selected_option,
+
+            selected_option_id:
+              answer_value,
+
             correct: correct,
-            obtained_marks: obtained
+
+            obtained_marks:
+              obtained
           )
 
         else
 
-          text_answer =
-            answer_value.to_s.strip
+          submitted_text =
+            answer_value
+              .to_s
+              .strip
+              .downcase
+              .squish
 
           correct =
-            text_answer.downcase ==
-            question.correct_answer
-                    .to_s
-                    .strip
-                    .downcase
+            submitted_text ==
+            cached_answer
+              .to_s
+              .strip
+              .downcase
+              .squish
 
           obtained =
             correct ? question.marks.to_f : 0.0
@@ -86,9 +109,14 @@ class TestAttemptsController < ApplicationController
 
           @attempt.answers.create!(
             question: question,
-            text_answer: text_answer,
+
+            text_answer:
+              answer_value,
+
             correct: correct,
-            obtained_marks: obtained
+
+            obtained_marks:
+              obtained
           )
 
         end
@@ -97,14 +125,9 @@ class TestAttemptsController < ApplicationController
 
         if question.mcq?
 
-          selected_option =
-            QuestionOption.find_by(
-              id: answer_value
-            )
-
           @attempt.answers.create!(
             question: question,
-            selected_option: selected_option
+            selected_option_id: answer_value
           )
 
         else
@@ -121,23 +144,19 @@ class TestAttemptsController < ApplicationController
     end
 
     percentage =
-      if @attempt.test.total_marks.to_f > 0
-
-        (
-          total_obtained /
-            @attempt.test.total_marks.to_f
-        ) * 100
-
-      else
-
-        0.0
-
-      end
+      calculate_percentage(
+        total_obtained,
+        test.total_marks
+      )
 
     @attempt.update!(
       submitted_at: Time.current,
-      total_marks_obtained: total_obtained,
+
+      total_marks_obtained:
+        total_obtained,
+
       percentage: percentage,
+
       status: :submitted
     )
 
@@ -149,9 +168,14 @@ class TestAttemptsController < ApplicationController
 
   def set_attempt
     @attempt =
-      current_user.test_attempts.find(
-        params[:id]
-      )
+      current_user
+        .test_attempts
+        .includes(
+          test: {
+            questions: :question_options
+          }
+        )
+        .find(params[:id])
   end
 
   def auto_submit
@@ -159,6 +183,38 @@ class TestAttemptsController < ApplicationController
       submitted_at: Time.current,
       status: :auto_submitted
     )
+  end
+
+  def fetch_cached_answer(test, question)
+
+    cached_answer =
+      TestAnswerCacheService.correct_answer(
+        test.id,
+        question.id
+      )
+
+    return cached_answer if cached_answer.present?
+
+    # Redis fallback recovery
+    TestAnswerCacheService.load_answers(test)
+
+    TestAnswerCacheService.correct_answer(
+      test.id,
+      question.id
+    )
+  end
+
+  def calculate_percentage(
+    obtained,
+    total
+  )
+
+    return 0.0 if total.to_f <= 0
+
+    (
+      obtained.to_f /
+        total.to_f
+    ) * 100
   end
 
   def evaluate
@@ -169,7 +225,8 @@ class TestAttemptsController < ApplicationController
 
       if answer.question.auto_check?
 
-        total_marks += answer.obtained_marks.to_f
+        total_marks +=
+          answer.obtained_marks.to_f
 
       else
 
@@ -179,13 +236,11 @@ class TestAttemptsController < ApplicationController
         max_marks =
           answer.question.marks.to_f
 
-        if given_marks > max_marks
-          given_marks = max_marks
-        end
+        given_marks =
+          max_marks if given_marks > max_marks
 
-        if given_marks < 0
-          given_marks = 0
-        end
+        given_marks =
+          0 if given_marks < 0
 
         answer.update!(
           obtained_marks: given_marks,
@@ -199,18 +254,10 @@ class TestAttemptsController < ApplicationController
     end
 
     percentage =
-      if @attempt.test.total_marks.to_f > 0
-
-        (
-          total_marks /
-            @attempt.test.total_marks.to_f
-        ) * 100
-
-      else
-
-        0.0
-
-      end
+      calculate_percentage(
+        total_marks,
+        @attempt.test.total_marks
+      )
 
     @attempt.update!(
       total_marks_obtained: total_marks,
@@ -220,6 +267,5 @@ class TestAttemptsController < ApplicationController
 
     redirect_to ct_marks_path,
                 notice: "Attempt evaluated successfully."
-
   end
 end

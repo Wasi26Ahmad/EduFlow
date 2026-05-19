@@ -1,43 +1,24 @@
-<h1>Create Test</h1>
+<%= vite_javascript_tag "create-test.jsx" %>
 
-<%= form_with model: [@course, @test],
-              url: teacher_course_tests_path(@course) do |f| %>
+<%
+  test_data = {
+    course_id: @course.id,
+    submit_url: teacher_course_tests_path(@course),
+    csrf_token: form_authenticity_token,
+    test: {
+      title: @test.title,
+      description: @test.description,
+      start_time: @test.start_time,
+      end_time: @test.end_time,
+      duration_minutes: @test.duration_minutes,
+      total_marks: @test.total_marks,
+      published: @test.published
+    }
+  }
+%>
 
-  <div>
-    <%= f.label :title %>
-    <%= f.text_field :title %>
-  </div>
+<div id="create-test-root"></div>
 
-  <div>
-    <%= f.label :description %>
-    <%= f.text_area :description %>
-  </div>
-
-  <div>
-    <%= f.label :start_time %>
-    <%= f.datetime_local_field :start_time %>
-  </div>
-
-  <div>
-    <%= f.label :end_time %>
-    <%= f.datetime_local_field :end_time %>
-  </div>
-
-  <div>
-    <%= f.label :duration_minutes %>
-    <%= f.number_field :duration_minutes %>
-  </div>
-
-  <div>
-    <%= f.label :total_marks %>
-    <%= f.number_field :total_marks %>
-  </div>
-
-  <div>
-    <%= f.label :published %>
-    <%= f.check_box :published %>
-  </div>
-
-  <%= f.submit "Create Test" %>
-
-<% end %>
+<script id="create-test-data" type="application/json">
+  <%= raw(test_data.to_json) %>
+</script>

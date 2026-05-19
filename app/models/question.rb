@@ -12,5 +12,14 @@ class Question < ApplicationRecord
     short: 1
   }
 
-  validates :content, presence: true
+  validates :content,
+            presence: true
+
+  after_commit :refresh_test_cache
+
+  private
+
+  def refresh_test_cache
+    TestAnswerCacheService.load_answers(test)
+  end
 end

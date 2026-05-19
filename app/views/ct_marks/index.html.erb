@@ -1,57 +1,27 @@
-<h1>CT Marks</h1>
+<%= vite_react_refresh_tag %>
+<%= vite_client_tag %>
+<%= vite_javascript_tag "ct_marks.jsx" %>
 
-<hr>
+<%
+      attempts_data =
+        @attempts.map do |attempt|
+              {
+                id: attempt.id,
+                test_title: attempt.test.title,
+                course_title: attempt.test.course.title,
+                semester: attempt.test.semester,
+                status: attempt.status,
+                obtained_marks: attempt.total_marks_obtained,
+                total_marks: attempt.test.total_marks,
+                percentage: attempt.percentage.round(2),
+                submitted_at:
+                  attempt.submitted_at&.strftime("%B %d, %Y %I:%M %p")
+              }
+        end
+%>
 
-<% if @attempts.any? %>
+<div id="ct-marks-root"></div>
 
-  <% @attempts.each do |attempt| %>
-
-    <div style="margin-bottom: 40px;">
-
-      <h2>
-        <%= attempt.test.title %>
-      </h2>
-
-      <p>
-        <strong>Course:</strong>
-        <%= attempt.test.course.title %>
-      </p>
-
-      <p>
-        <strong>Semester:</strong>
-        <%= attempt.test.semester %>
-      </p>
-
-      <p>
-        <strong>Status:</strong>
-        <%= attempt.status %>
-      </p>
-
-      <p>
-        <strong>Obtained Marks:</strong>
-        <%= attempt.total_marks_obtained %>
-        /
-        <%= attempt.test.total_marks %>
-      </p>
-
-      <p>
-        <strong>Percentage:</strong>
-        <%= attempt.percentage.round(2) %>%
-      </p>
-
-      <p>
-        <strong>Submitted At:</strong>
-        <%= attempt.submitted_at %>
-      </p>
-
-    </div>
-
-    <hr>
-
-  <% end %>
-
-<% else %>
-
-  <p>No CT marks available.</p>
-
-<% end %>
+<script id="ct-marks-data" type="application/json">
+  <%= raw(attempts_data.to_json) %>
+</script>

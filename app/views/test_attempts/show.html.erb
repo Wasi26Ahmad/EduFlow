@@ -1,105 +1,30 @@
-<h1>
-  <%= @attempt.test.title %>
-</h1>
+<%= vite_javascript_tag "test_attempt_show.jsx" %>
 
-<hr>
-
-<p>
-  <strong>Time Remaining:</strong>
-</p>
-
-<div id="timer"
-     style="font-size: 24px;
-       color: red;">
+<div
+  id="test-attempt-root"
+  data-attempt='<%= raw(
+                      {
+                        id: @attempt.id,
+                        expires_at: @attempt.expires_at.iso8601,
+                        submit_url: test_attempt_path(@attempt),
+                        csrf_token: form_authenticity_token,
+                        test: {
+                          title: @attempt.test.title,
+                          questions: @attempt.test.questions.map do |question|
+                            {
+                              id: question.id,
+                              content: question.content,
+                              marks: question.marks,
+                              question_type: question.question_type,
+                              options: question.question_options.map do |option|
+                                {
+                                  id: option.id,
+                                  content: option.content
+                                }
+                              end
+                            }
+                          end
+                        }
+                      }.to_json
+                    ) %>'>
 </div>
-
-<hr>
-
-<%= form_with model: @attempt,
-              url: test_attempt_path(@attempt),
-              method: :patch do %>
-
-  <% @attempt.test.questions.each_with_index do |question, index| %>
-
-    <div style="margin-bottom: 40px;">
-
-      <h3>
-        Question <%= index + 1 %>
-      </h3>
-
-      <p>
-        <%= question.content %>
-      </p>
-
-      <p>
-        Marks:
-        <%= question.marks %>
-      </p>
-
-      <% if question.mcq? %>
-
-        <% question.question_options.each do |option| %>
-
-          <div>
-
-            <input type="radio"
-                   name="answers[<%= question.id %>]"
-                   value="<%= option.id %>">
-
-            <%= option.content %>
-
-          </div>
-
-        <% end %>
-
-      <% else %>
-
-        <textarea
-          name="answers[<%= question.id %>]"
-          rows="5"
-          cols="60">
-        </textarea>
-
-      <% end %>
-
-    </div>
-
-    <hr>
-
-  <% end %>
-
-  <%= submit_tag "Submit Test" %>
-
-<% end %>
-
-<script>
-    const expiresAt =
-        new Date("<%= @attempt.expires_at.iso8601 %>");
-
-    function updateTimer() {
-
-        const now = new Date();
-
-        const distance = expiresAt - now;
-
-        if (distance <= 0) {
-
-            document.forms[0].submit();
-
-            return;
-        }
-
-        const minutes =
-            Math.floor(distance / 1000 / 60);
-
-        const seconds =
-            Math.floor((distance / 1000) % 60);
-
-        document.getElementById("timer").innerHTML =
-            minutes + "m " + seconds + "s";
-    }
-
-    setInterval(updateTimer, 1000);
-
-    updateTimer();
-</script>
