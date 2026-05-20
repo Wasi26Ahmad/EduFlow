@@ -14,7 +14,7 @@ class TestsController < ApplicationController
 
     unless enrolled
       redirect_to enrollments_path,
-                  alert: "You are not enrolled in this course."
+                  alert: "You are not enrolled in this course"
       return
     end
 
@@ -30,17 +30,15 @@ class TestsController < ApplicationController
   end
 
   def show
-
     unless eligible_for_test?
       redirect_to course_tests_path(@course),
                   alert: "You are not eligible."
       return
     end
-
   end
 
-  def start
 
+  def start
     unless eligible_for_test?
       redirect_to course_tests_path(@course),
                   alert: "You cannot start this test."

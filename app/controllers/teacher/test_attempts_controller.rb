@@ -70,8 +70,9 @@ class Teacher::TestAttemptsController < ApplicationController
 
   end
 
-  private
 
+
+  private
   def set_course
     @course = Course.find(params[:course_id])
 

@@ -10,7 +10,6 @@ class TestAttemptsController < ApplicationController
 
       redirect_to ct_marks_path,
                   alert: "Time expired."
-
       return
     end
   end
@@ -195,7 +194,6 @@ class TestAttemptsController < ApplicationController
 
     return cached_answer if cached_answer.present?
 
-    # Redis fallback recovery
     TestAnswerCacheService.load_answers(test)
 
     TestAnswerCacheService.correct_answer(

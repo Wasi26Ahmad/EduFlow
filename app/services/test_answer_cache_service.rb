@@ -26,7 +26,7 @@ class TestAnswerCacheService
           correct_option.id
 
       else
-
+        #Eita thik pochondo na approach ta amar nijer e pore change korbo
         answers_hash[question.id] =
           question.correct_answer
                   .to_s
@@ -44,7 +44,6 @@ class TestAnswerCacheService
       answers_hash
     )
 
-    # auto delete after test ends
     $redis.expire(
       redis_key(test.id),
       ttl

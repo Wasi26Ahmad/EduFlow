@@ -32,8 +32,6 @@ class Teacher::TestsController < ApplicationController
     @test.semester = @course.semester
 
     if @test.save
-
-      # Warm Redis immediately
       TestAnswerCacheService.load_answers(@test)
 
       redirect_to teacher_course_tests_path(@course),
@@ -55,19 +53,14 @@ class Teacher::TestsController < ApplicationController
       @attempts.map do |attempt|
         {
           id: attempt.id,
-
           student_name: attempt.user&.name,
           student_email: attempt.user&.email,
-
           status: attempt.status,
-
           marks: attempt.total_marks_obtained,
-
           submitted_at:
             attempt.submitted_at&.strftime(
               "%d %b %Y, %I:%M %p"
             ),
-
           evaluate_path:
             teacher_course_test_attempt_path(
               @course,
@@ -95,7 +88,6 @@ class Teacher::TestsController < ApplicationController
         finalized: true
       )
 
-      # Load correct answers into Redis
       TestAnswerCacheService.load_answers(@test)
 
     end
