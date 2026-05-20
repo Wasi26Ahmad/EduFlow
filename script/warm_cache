@@ -1,0 +1,31 @@
+bundle exec rails runner '
+
+# Stale check
+$redis.keys("test:*:answers").each do |key|
+
+  test_id =
+    key.split(":")[1]
+
+  unless Test.exists?(test_id)
+
+    $redis.del(key)
+
+    puts "Removed stale cache #{key}"
+
+  end
+end
+
+# Warming
+Test
+  .where("end_time > ?", Time.current)
+  .find_each do |test|
+
+    TestAnswerCacheService.load_answers(test)
+
+    puts "Warmed cache for test #{test.id}"
+
+  end
+
+
+  #Chailei ekta simple delete-load diye korte partam simple o hoito but iccha kortese na ekhon change korte abar
+'

@@ -45,7 +45,6 @@ class TestAttemptsController < ApplicationController
 
     questions =
       test.questions.includes(:question_options)
-
     questions.each do |question|
 
       answer_value =
