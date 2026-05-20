@@ -222,7 +222,7 @@ function EnrollmentCard({ enrollment, index }) {
                                     color: "#0f172a",
                                 }}
                             >
-                                View available CT exams
+                                View available Class Tests
                             </div>
                         </div>
 

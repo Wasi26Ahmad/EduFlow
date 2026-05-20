@@ -73,12 +73,9 @@ class TestAttemptsController < ApplicationController
 
           @attempt.answers.create!(
             question: question,
-
             selected_option_id:
               answer_value,
-
             correct: correct,
-
             obtained_marks:
               obtained
           )
@@ -107,12 +104,9 @@ class TestAttemptsController < ApplicationController
 
           @attempt.answers.create!(
             question: question,
-
             text_answer:
               answer_value,
-
             correct: correct,
-
             obtained_marks:
               obtained
           )
@@ -247,7 +241,6 @@ class TestAttemptsController < ApplicationController
         total_marks += given_marks
 
       end
-
     end
 
     percentage =

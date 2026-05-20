@@ -7,7 +7,9 @@ class Payment < ApplicationRecord
               greater_than: 0
             }
 
-  validates :idempotency_key, uniqueness: true
+  validates :idempotency_key,
+            presence: true,
+            uniqueness: true
 
   enum :status, {
     pending: "pending",

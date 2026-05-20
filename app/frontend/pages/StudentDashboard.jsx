@@ -14,7 +14,7 @@ const cards = [
         key: "courses",
         title: "Explore Courses",
         description:
-            "Browse available courses, enroll, and manage payments.",
+            "Browse available courses, enroll and make payments",
         icon: "📚",
         gradient: "linear-gradient(135deg, #10b981, #22c55e)",
         glow: "rgba(16,185,129,0.22)",

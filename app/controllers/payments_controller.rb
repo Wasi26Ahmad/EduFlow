@@ -14,92 +14,93 @@ class PaymentsController < ApplicationController
     course = Course.find(params[:course_id])
 
     idempotency_key =
-      params[:idempotency_key] || SecureRandom.uuid
+      params[:idempotency_key].presence ||
+      SecureRandom.uuid
 
-    original_amount = course.price.to_f
+    existing_payment =
+      Payment.find_by(
+        user: current_user,
+        course: course,
+        idempotency_key: idempotency_key
+      )
 
-    coupon = nil
-    discount_amount = 0
-    final_amount = original_amount
+    if existing_payment.present?
+      payment = existing_payment
+    else
+      original_amount = course.price.to_f
 
-    if params[:coupon_code].present?
+      coupon = nil
+      discount_amount = 0
+      final_amount = original_amount
 
-      coupon =
-        course.coupons.find_by(
-          code: params[:coupon_code].to_s.upcase.strip,
-          active: true
-        )
+      if params[:coupon_code].present?
 
-      if coupon.present?
+        coupon =
+          course.coupons.find_by(
+            code: params[:coupon_code].to_s.upcase.strip,
+            active: true
+          )
 
-        valid_time =
-          coupon.starts_at.present? &&
-          coupon.expires_at.present? &&
-          coupon.starts_at <= Time.current &&
-          coupon.expires_at >= Time.current
+        if coupon.present?
 
-        usage_available =
-          coupon.usage_limit.nil? ||
-          coupon.used_count.to_i < coupon.usage_limit
+          valid_time =
+            coupon.starts_at.present? &&
+            coupon.expires_at.present? &&
+            coupon.starts_at <= Time.current &&
+            coupon.expires_at >= Time.current
 
-        minimum_purchase_ok =
-          coupon.minimum_purchase.nil? ||
-          original_amount >= coupon.minimum_purchase.to_f
+          usage_available =
+            coupon.usage_limit.nil? ||
+            coupon.used_count.to_i < coupon.usage_limit
 
-        if valid_time &&
-           usage_available &&
-           minimum_purchase_ok
+          minimum_purchase_ok =
+            coupon.minimum_purchase.nil? ||
+            original_amount >= coupon.minimum_purchase.to_f
 
-          if coupon.percentage?
+          if valid_time &&
+             usage_available &&
+             minimum_purchase_ok
 
-            discount_amount =
-              (original_amount * coupon.discount_value.to_f) / 100
+            if coupon.percentage?
 
-            if coupon.max_discount.present?
               discount_amount =
-                [
-                  discount_amount,
-                  coupon.max_discount.to_f
-                ].min
+                (original_amount * coupon.discount_value.to_f) / 100
+
+              if coupon.max_discount.present?
+                discount_amount =
+                  [
+                    discount_amount,
+                    coupon.max_discount.to_f
+                  ].min
+              end
+
+            else
+              discount_amount =
+                coupon.discount_value.to_f
             end
 
-          else
-            discount_amount =
-              coupon.discount_value.to_f
+            final_amount =
+              original_amount - discount_amount
+
+            final_amount = 0 if final_amount.negative?
           end
-
-          final_amount =
-            original_amount - discount_amount
-
-          final_amount = 0 if final_amount.negative?
         end
       end
-    end
 
-    payment = Payment.find_or_create_by!(
-      user: current_user,
-      course: course,
-      idempotency_key: idempotency_key
-    ) do |p|
-      p.amount = final_amount
-      p.discount_amount = discount_amount
-      p.coupon_code = coupon&.code
-      p.status = "pending"
-    end
+      payment = Payment.create!(
+        user: current_user,
+        course: course,
+        idempotency_key: idempotency_key,
+        amount: final_amount,
+        discount_amount: discount_amount,
+        coupon_code: coupon&.code,
+        status: "pending",
+        transaction_id: "TXN-#{SecureRandom.hex(10)}"
+      )
 
-    transaction_id =
-      payment.transaction_id ||
-      "TXN-#{SecureRandom.hex(10)}"
-
-    payment.update!(
-      transaction_id: transaction_id,
-      amount: final_amount,
-      discount_amount: discount_amount,
-      coupon_code: coupon&.code
-    )
-
-    if coupon.present? && discount_amount.positive?
-      coupon.increment!(:used_count)
+      if coupon.present? && discount_amount.positive?
+        coupon.increment!(:used_count)
+      end
     end
 
     store_id = ENV["SSLCOMMERZ_STORE_ID"]
@@ -119,9 +120,9 @@ class PaymentsController < ApplicationController
       store_id: store_id,
       store_passwd: store_password,
 
-      total_amount: final_amount,
+      total_amount: payment.amount,
       currency: "BDT",
-      tran_id: transaction_id,
+      tran_id: payment.transaction_id,
 
       success_url: success_payments_url,
       fail_url: fail_payments_url,
@@ -146,6 +147,7 @@ class PaymentsController < ApplicationController
     }
 
     response = HTTParty.post(url, body: payload)
+
     Rails.logger.info "SSLCOMMERZ RESPONSE:"
     Rails.logger.info response.body
 
