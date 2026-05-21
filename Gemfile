@@ -16,6 +16,7 @@ gem "puma", ">= 5.0"
 
 gem "sidekiq"
 
+gem "minitest", "~> 5.25"
 
 gem "brakeman", require: false
 
