@@ -5,11 +5,9 @@ class TestAttemptsController < ApplicationController
   def show
     if Time.current > @attempt.expires_at &&
        @attempt.in_progress?
-
       auto_submit
-
       redirect_to ct_marks_path,
-                  alert: "Time expired."
+                  alert: "Time expired"
       return
     end
   end
@@ -21,7 +19,7 @@ class TestAttemptsController < ApplicationController
       auto_submit
 
       redirect_to ct_marks_path,
-                  alert: "Time expired."
+                  alert: "Time has expired"
 
       return
     end
@@ -31,7 +29,7 @@ class TestAttemptsController < ApplicationController
        @attempt.evaluated?
 
       redirect_to ct_marks_path,
-                  alert: "Already submitted."
+                  alert: "You have already submitted"
 
       return
     end
@@ -153,7 +151,7 @@ class TestAttemptsController < ApplicationController
     )
 
     redirect_to ct_marks_path,
-                notice: "Test submitted successfully."
+                notice: "Test submitted successfully"
   end
 
   private
@@ -256,6 +254,6 @@ class TestAttemptsController < ApplicationController
     )
 
     redirect_to ct_marks_path,
-                notice: "Attempt evaluated successfully."
+                notice: "Attempt evaluated successfully"
   end
 end

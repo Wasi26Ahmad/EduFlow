@@ -17,22 +17,23 @@ class ResultsController < ApplicationController
       pagy(approved_results, limit: 10)
   end
 
-  def download_pdf
-    results =
-      current_user.results
-                  .where(approved: true)
-                  .includes(:course)
-                  .order(created_at: :desc)
+  def generate_pdf
+    export = current_user.result_exports.create!(
+      status: :pending
+    )
 
-    pdf =
-      ResultsPdf.new(
-        current_user,
-        results
-      ).render
+    GenerateResultsPdfJob.perform_async(export.id)
 
-    send_data pdf,
-              filename: "results.pdf",
-              type: "application/pdf",
-              disposition: "attachment"
+    render json: {
+      id: export.id,
+      status: export.status
+    }
+  rescue => e
+    Rails.logger.error e.message
+    Rails.logger.error e.backtrace.join("\n")
+
+    render json: {
+      error: e.message
+    }, status: :unprocessable_entity
   end
 end

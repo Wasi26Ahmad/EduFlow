@@ -3,26 +3,33 @@
 <script>
     window.studentResultsData = {
         results: <%= raw(
-      @results.map { |result|
-        {
-          id: result.id,
-          gpa: result.gpa,
-          marks: result.marks,
-          semester: result.semester || result.course&.semester,
+            @results.map { |result|
+                {
+                    id: result.id,
+                    gpa: result.gpa,
+                    marks: result.marks,
+                    semester: result.semester || result.course&.semester,
 
-          course: {
-            id: result.course.id,
-            title: result.course.title,
-            code: result.course.code,
-            semester: result.course.semester
-          }
-        }
-      }.to_json
-    ) %>,
+                    course: {
+                        id: result.course.id,
+                        title: result.course.title,
+                        code: result.course.code,
+                        semester: result.course.semester
+                    }
+                }
+            }.to_json
+        ) %>,
 
-        downloadUrl: "<%= download_pdf_results_path %>",
-        pagination: <%= raw(pagy_nav(@pagy).to_json) %>
-    }
+        generatePdfUrl: "<%= generate_pdf_results_path %>",
+
+        latestExport: <%= raw(
+            (@latest_export || nil).to_json
+        ) %>,
+
+        pagination: <%= raw(
+            pagy_nav(@pagy).to_json
+        ) %>
+    };
 </script>
 
 <%= vite_javascript_tag "student_results_dashboard.jsx" %>

@@ -43,9 +43,28 @@ Rails.application.routes.draw do
 
   resources :results do
     collection do
-      get :download_pdf
+      post :generate_pdf
     end
   end
+
+
+  require "sidekiq/web"
+
+  authenticate :user,
+               lambda { |u| u.super_admin? } do
+
+    mount Sidekiq::Web => "/sidekiq"
+
+  end
+
+  resources :result_exports,
+            only: [:index, :show] do
+    member do
+      get :download
+    end
+  end
+
+
 
   resources :test_attempts,
             only: [:show, :update] do
@@ -114,6 +133,8 @@ Rails.application.routes.draw do
         patch :reject
       end
     end
+
+
 
     get "course_catalogue",
         to: "course_catalogue#index"

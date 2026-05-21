@@ -1,4 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, {
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 
 const fadeInUp = {
     animation: "fadeUp .6s ease forwards",
@@ -6,13 +10,14 @@ const fadeInUp = {
 
 function groupBySemester(results) {
     return results.reduce((acc, result) => {
-        // Use course semester if result semester is missing
         const semester =
             result.semester ||
             result.course?.semester ||
             "N/A";
 
-        if (!acc[semester]) acc[semester] = [];
+        if (!acc[semester]) {
+            acc[semester] = [];
+        }
 
         acc[semester].push(result);
 
@@ -21,11 +26,19 @@ function groupBySemester(results) {
 }
 
 export default function StudentResultsDashboard({
-                                                    results,
-                                                    downloadUrl,
+                                                    results = [],
                                                     pagination,
+                                                    generatePdfUrl,
+                                                    latestExport,
                                                 }) {
-    const [activeCard, setActiveCard] = useState(null);
+    const [activeCard, setActiveCard] =
+        useState(null);
+
+    const [exportState, setExportState] =
+        useState(latestExport || null);
+
+    const [loading, setLoading] =
+        useState(false);
 
     const normalizedResults = useMemo(() => {
         return results.map((result) => ({
@@ -46,7 +59,250 @@ export default function StudentResultsDashboard({
         semesterGroups
     ).sort((a, b) => Number(a) - Number(b));
 
-    const totalCourses = normalizedResults.length;
+    const totalCourses =
+        normalizedResults.length;
+
+    useEffect(() => {
+        if (
+            !exportState ||
+            !["pending", "processing"].includes(
+                exportState.status
+            )
+        ) {
+            return;
+        }
+        const interval = setInterval(async () => {
+            try {
+                const response = await fetch(
+                    `/result_exports/${exportState.id}.json`
+                );
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+
+                setExportState(data);
+
+                if (
+                    data.status === "completed" &&
+                    data.file_url
+                ) {
+                    clearInterval(interval);
+
+                    const link =
+                        document.createElement("a");
+
+                    link.href = data.file_url;
+
+                    link.setAttribute(
+                        "download",
+                        "transcript.pdf"
+                    );
+
+                    document.body.appendChild(link);
+
+                    link.click();
+
+                    document.body.removeChild(link);
+                }
+
+                if (data.status === "failed") {
+                    clearInterval(interval);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [exportState]);
+
+    const generatePdf = async () => {
+        try {
+            setLoading(true);
+
+            const response = await fetch(
+                generatePdfUrl,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                        "X-CSRF-Token":
+                            document
+                                .querySelector(
+                                    'meta[name="csrf-token"]'
+                                )
+                                ?.getAttribute(
+                                    "content"
+                                ),
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    "Failed to generate PDF"
+                );
+            }
+
+            const data =
+                await response.json();
+
+            setExportState(data);
+        } catch (error) {
+            console.error(error);
+
+            alert(
+                "Failed to start PDF generation."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const renderExportButton = () => {
+        if (!exportState) {
+            return (
+                <button
+                    onClick={generatePdf}
+                    disabled={loading}
+                    style={{
+                        marginTop: 18,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        padding: "14px 20px",
+                        background: "#ffffff",
+                        color: "#2563eb",
+                        borderRadius: 14,
+                        textDecoration: "none",
+                        fontSize: 14,
+                        fontWeight: 800,
+                        border: "none",
+                        cursor: "pointer",
+                        outline: "none",
+                        boxShadow:
+                            "0 8px 20px rgba(0,0,0,.12)",
+                        transition: "all .2s ease",
+                    }}
+                >
+                    {loading
+                        ? "Generating..."
+                        : "⬇ Generate PDF"}
+                </button>
+            );
+        }
+
+        if (
+            ["pending", "processing"].includes(
+                exportState.status
+            )
+        ) {
+            return (
+                <div
+                    style={{
+                        marginTop: 18,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "14px 20px",
+                        borderRadius: 14,
+                        background: "#ffffff",
+                        fontSize: 14,
+                        fontWeight: 800,
+                        color: "#2563eb",
+                        boxShadow:
+                            "0 8px 20px rgba(0,0,0,.12)",
+                    }}
+                >
+                    ⏳ Generating PDF...
+                </div>
+            );
+        }
+
+        if (
+            exportState.status === "failed"
+        ) {
+            return (
+                <div
+                    style={{
+                        marginTop: 18,
+                    }}
+                >
+                    <div
+                        style={{
+                            fontSize: 13,
+                            marginBottom: 10,
+                            color: "#fee2e2",
+                            fontWeight: 700,
+                        }}
+                    >
+                        PDF generation failed
+                    </div>
+
+                    <button
+                        onClick={generatePdf}
+                        style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 8,
+                            padding: "14px 20px",
+                            background: "#ffffff",
+                            color: "#2563eb",
+                            borderRadius: 14,
+                            fontSize: 14,
+                            fontWeight: 800,
+                            border: "none",
+                            cursor: "pointer",
+                            outline: "none",
+                            boxShadow:
+                                "0 8px 20px rgba(0,0,0,.12)",
+                        }}
+                    >
+                        Retry PDF Generation
+                    </button>
+                </div>
+            );
+        }
+
+        if (
+            exportState.status === "completed"
+        ) {
+            return (
+                <a
+                    href={
+                        exportState.download_url
+                    }
+                    style={{
+                        marginTop: 18,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        padding: "14px 20px",
+                        background: "#ffffff",
+                        color: "#2563eb",
+                        borderRadius: 14,
+                        textDecoration: "none",
+                        fontSize: 14,
+                        fontWeight: 800,
+                        border: "none",
+                        boxShadow:
+                            "0 8px 20px rgba(0,0,0,.12)",
+                    }}
+                >
+                    ⬇ Download PDF
+                </a>
+            );
+        }
+
+        return null;
+    };
 
     return (
         <>
@@ -101,500 +357,404 @@ export default function StudentResultsDashboard({
             border-color: #bfdbfe;
             box-shadow: 0 12px 26px rgba(37,99,235,.08);
           }
-
-          .hero-title {
-            letter-spacing: -2px;
-          }
-
-          @media (max-width: 768px) {
-            .hero-title {
-              font-size: 34px !important;
-            }
-
-            .semester-header {
-              flex-direction: column;
-              align-items: flex-start !important;
-            }
-          }
         `}
             </style>
 
             <div
                 style={{
                     maxWidth: 1080,
-                    margin: "30px auto",
-                    padding: "0 16px 50px",
+                    margin:
+                        "30px auto",
+                    padding:
+                        "0 16px 50px",
                     fontFamily:
-                        "Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+                        "Inter, system-ui, sans-serif",
                 }}
             >
                 {/* HERO */}
                 <div
                     style={{
-                        position: "relative",
-                        overflow: "hidden",
                         borderRadius: 28,
                         padding: 30,
                         background:
                             "linear-gradient(135deg, #ffffff 0%, #f3f8ff 50%, #e8f0ff 100%)",
-                        border: "1px solid rgba(191,219,254,.7)",
+                        border:
+                            "1px solid rgba(191,219,254,.7)",
                         boxShadow:
                             "0 18px 45px rgba(59,130,246,.08)",
                         marginBottom: 22,
-                        ...fadeInUp,
                     }}
                 >
                     <div
                         style={{
-                            position: "absolute",
-                            width: 220,
-                            height: 220,
-                            borderRadius: "50%",
+                            display:
+                                "inline-flex",
+                            alignItems:
+                                "center",
+                            gap: 8,
+                            padding:
+                                "7px 12px",
+                            borderRadius: 999,
                             background:
-                                "radial-gradient(circle, rgba(96,165,250,.14), transparent 70%)",
-                            top: -70,
-                            right: -50,
-                            filter: "blur(8px)",
+                                "linear-gradient(135deg, #dbeafe, #eff6ff)",
+                            color:
+                                "#2563eb",
+                            fontSize: 11,
+                            fontWeight: 800,
+                            letterSpacing:
+                                ".5px",
+                            textTransform:
+                                "uppercase",
+                            border:
+                                "1px solid #bfdbfe",
                         }}
-                    />
+                    >
+                        🎓 Student Academic Dashboard
+                    </div>
 
-                    <div
+                    <h1
                         style={{
-                            position: "relative",
-                            zIndex: 2,
+                            fontSize: 52,
+                            fontWeight: 900,
+                            margin:
+                                "18px 0 10px",
+                            color:
+                                "#0f172a",
+                        }}
+                    >
+                        My Results
+                    </h1>
+
+                    <p
+                        style={{
+                            maxWidth: 620,
+                            color:
+                                "#475569",
+                            fontSize: 15,
+                            lineHeight:
+                                1.8,
+                        }}
+                    >
+                        Track your academic
+                        performance semester-by-semester
+                        and generate your official transcript.
+                    </p>
+                </div>
+
+                {/* TOP CARDS */}
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                            "repeat(auto-fit, minmax(250px, 1fr))",
+                        gap: 18,
+                        marginBottom: 28,
+                    }}
+                >
+                    <div
+                        className="dashboard-card"
+                        style={{
+                            background:
+                                "white",
+                            borderRadius: 24,
+                            padding: 24,
+                            border:
+                                "1px solid #e5e7eb",
                         }}
                     >
                         <div
                             style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 8,
-                                padding: "7px 12px",
-                                borderRadius: 999,
-                                background:
-                                    "linear-gradient(135deg, #dbeafe, #eff6ff)",
-                                color: "#2563eb",
                                 fontSize: 11,
                                 fontWeight: 800,
-                                letterSpacing: ".5px",
-                                textTransform: "uppercase",
-                                border: "1px solid #bfdbfe",
+                                color:
+                                    "#64748b",
+                                textTransform:
+                                    "uppercase",
                             }}
                         >
-                            🎓 Student Academic Dashboard
+                            Courses Completed
                         </div>
 
-                        <h1
-                            className="hero-title"
+                        <div
                             style={{
+                                marginTop: 14,
                                 fontSize: 42,
-                                lineHeight: 1.02,
                                 fontWeight: 900,
-                                margin: "18px 0 10px",
-                                color: "#0f172a",
                             }}
                         >
-                            My Results
-                        </h1>
+                            {totalCourses}
+                        </div>
+                    </div>
 
-                        <p
+                    <div
+                        className="dashboard-card"
+                        style={{
+                            background:
+                                "white",
+                            borderRadius: 24,
+                            padding: 24,
+                            border:
+                                "1px solid #e5e7eb",
+                        }}
+                    >
+                        <div
                             style={{
-                                maxWidth: 620,
-                                color: "#475569",
-                                fontSize: 14,
-                                lineHeight: 1.8,
-                                margin: 0,
+                                fontSize: 11,
+                                fontWeight: 800,
+                                color:
+                                    "#64748b",
+                                textTransform:
+                                    "uppercase",
                             }}
                         >
-                            Track your academic performance semester-by-semester
-                            and instantly access your official transcript
-                            through a fast modern dashboard.
-                        </p>
+                            Semesters Completed
+                        </div>
+
+                        <div
+                            style={{
+                                marginTop: 14,
+                                fontSize: 42,
+                                fontWeight: 900,
+                                color:
+                                    "#7c3aed",
+                            }}
+                        >
+                            {
+                                semesterKeys.length
+                            }
+                        </div>
+                    </div>
+
+                    {/* PDF CARD */}
+                    <div
+                        style={{
+                            borderRadius: 24,
+                            padding: 24,
+                            background:
+                                "linear-gradient(135deg, #2563eb, #4f46e5)",
+                            color: "white",
+                        }}
+                    >
+                        <div
+                            style={{
+                                fontSize: 11,
+                                fontWeight: 800,
+                                textTransform:
+                                    "uppercase",
+                                opacity: 0.9,
+                            }}
+                        >
+                            Official Transcript
+                        </div>
+
+                        <div
+                            style={{
+                                marginTop: 10,
+                                fontSize: 36,
+                                fontWeight: 900,
+                            }}
+                        >
+                            PDF Export
+                        </div>
+
+                        <div
+                            style={{
+                                marginTop: 10,
+                                fontSize: 14,
+                                opacity: 0.9,
+                            }}
+                        >
+                            Generate and download your transcript instantly.
+                        </div>
+
+                        {renderExportButton()}
                     </div>
                 </div>
 
-                {normalizedResults.length > 0 ? (
-                    <>
-                        {/* TOP CARDS */}
-                        <div
-                            style={{
-                                display: "grid",
-                                gridTemplateColumns:
-                                    "repeat(auto-fit, minmax(220px, 1fr))",
-                                gap: 16,
-                                marginBottom: 22,
-                            }}
-                        >
-                            {/* COURSES */}
-                            <div
-                                className="dashboard-card"
-                                style={{
-                                    background: "rgba(255,255,255,.88)",
-                                    border: "1px solid rgba(226,232,240,.9)",
-                                    borderRadius: 24,
-                                    padding: 22,
-                                    boxShadow:
-                                        "0 10px 28px rgba(15,23,42,.04)",
-                                    ...fadeInUp,
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        fontSize: 11,
-                                        fontWeight: 800,
-                                        color: "#64748b",
-                                        textTransform: "uppercase",
-                                        letterSpacing: ".5px",
-                                    }}
-                                >
-                                    Courses Completed
-                                </div>
+                {/* RESULTS */}
+                <div
+                    style={{
+                        display:
+                            "flex",
+                        flexDirection:
+                            "column",
+                        gap: 24,
+                    }}
+                >
+                    {semesterKeys.map(
+                        (semester) => {
+                            const semesterResults =
+                                semesterGroups[
+                                    semester
+                                    ];
 
-                                <div
-                                    style={{
-                                        marginTop: 10,
-                                        fontSize: 40,
-                                        fontWeight: 900,
-                                        color: "#111827",
-                                        letterSpacing: "-2px",
-                                    }}
-                                >
-                                    {totalCourses}
-                                </div>
-
-                                <div
-                                    style={{
-                                        marginTop: 10,
-                                        color: "#64748b",
-                                        fontSize: 13,
-                                        lineHeight: 1.7,
-                                    }}
-                                >
-                                    Published and approved academic results.
-                                </div>
-                            </div>
-
-                            {/* SEMESTERS */}
-                            <div
-                                className="dashboard-card"
-                                style={{
-                                    background: "rgba(255,255,255,.88)",
-                                    border: "1px solid rgba(226,232,240,.9)",
-                                    borderRadius: 24,
-                                    padding: 22,
-                                    boxShadow:
-                                        "0 10px 28px rgba(15,23,42,.04)",
-                                    ...fadeInUp,
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        fontSize: 11,
-                                        fontWeight: 800,
-                                        color: "#64748b",
-                                        textTransform: "uppercase",
-                                        letterSpacing: ".5px",
-                                    }}
-                                >
-                                    Semesters Completed
-                                </div>
-
-                                <div
-                                    style={{
-                                        marginTop: 10,
-                                        fontSize: 40,
-                                        fontWeight: 900,
-                                        color: "#7c3aed",
-                                        letterSpacing: "-2px",
-                                    }}
-                                >
-                                    {semesterKeys.length}
-                                </div>
-
-                                <div
-                                    style={{
-                                        marginTop: 12,
-                                        display: "flex",
-                                        flexWrap: "wrap",
-                                        gap: 6,
-                                    }}
-                                >
-                                    {semesterKeys.map((semester) => (
-                                        <div
-                                            key={semester}
-                                            style={{
-                                                padding: "6px 10px",
-                                                borderRadius: 999,
-                                                background: "#f3e8ff",
-                                                color: "#7c3aed",
-                                                fontSize: 11,
-                                                fontWeight: 800,
-                                                border: "1px solid #e9d5ff",
-                                            }}
-                                        >
-                                            Semester {semester}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* DOWNLOAD */}
-                            <div
-                                className="dashboard-card"
-                                style={{
-                                    background:
-                                        "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
-                                    borderRadius: 24,
-                                    padding: 22,
-                                    color: "white",
-                                    boxShadow:
-                                        "0 16px 35px rgba(37,99,235,.18)",
-                                    border:
-                                        "1px solid rgba(255,255,255,.10)",
-                                    ...fadeInUp,
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        fontSize: 11,
-                                        fontWeight: 800,
-                                        opacity: 0.85,
-                                        textTransform: "uppercase",
-                                        letterSpacing: ".5px",
-                                    }}
-                                >
-                                    Official Transcript
-                                </div>
-
-                                <div
-                                    style={{
-                                        marginTop: 10,
-                                        fontSize: 24,
-                                        fontWeight: 900,
-                                        lineHeight: 1.3,
-                                        letterSpacing: "-1px",
-                                    }}
-                                >
-                                    Download PDF
-                                </div>
-
-                                <div
-                                    style={{
-                                        marginTop: 8,
-                                        fontSize: 13,
-                                        color: "rgba(255,255,255,.82)",
-                                        lineHeight: 1.7,
-                                    }}
-                                >
-                                    Export your transcript instantly.
-                                </div>
-
-                                <a
-                                    href={downloadUrl}
-                                    style={{
-                                        marginTop: 18,
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        gap: 8,
-                                        padding: "12px 16px",
-                                        background:
-                                            "rgba(255,255,255,.16)",
-                                        color: "white",
-                                        borderRadius: 14,
-                                        textDecoration: "none",
-                                        fontSize: 13,
-                                        fontWeight: 700,
-                                        border:
-                                            "1px solid rgba(255,255,255,.18)",
-                                    }}
-                                >
-                                    ⬇ Download
-                                </a>
-                            </div>
-                        </div>
-
-                        {/* SEMESTERS */}
-                        <div
-                            style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 20,
-                            }}
-                        >
-                            {semesterKeys.map((semester) => {
-                                const semesterResults =
-                                    semesterGroups[semester];
-
-                                const semesterGPA = (
+                            const semesterGPA =
+                                (
                                     semesterResults.reduce(
-                                        (acc, r) =>
-                                            acc + Number(r.gpa || 0),
+                                        (
+                                            acc,
+                                            r
+                                        ) =>
+                                            acc +
+                                            Number(
+                                                r.gpa ||
+                                                0
+                                            ),
                                         0
-                                    ) / semesterResults.length
-                                ).toFixed(2);
+                                    ) /
+                                    semesterResults.length
+                                ).toFixed(
+                                    2
+                                );
 
-                                return (
+                            return (
+                                <div
+                                    key={
+                                        semester
+                                    }
+                                    style={{
+                                        background:
+                                            "white",
+                                        borderRadius: 28,
+                                        border:
+                                            "1px solid #e5e7eb",
+                                        overflow:
+                                            "hidden",
+                                    }}
+                                >
                                     <div
-                                        key={semester}
                                         style={{
+                                            padding:
+                                                "22px 24px",
                                             background:
-                                                "rgba(255,255,255,.94)",
-                                            borderRadius: 28,
-                                            border:
-                                                "1px solid rgba(226,232,240,.9)",
-                                            overflow: "hidden",
-                                            boxShadow:
-                                                "0 12px 32px rgba(15,23,42,.04)",
-                                            ...fadeInUp,
+                                                "linear-gradient(135deg,#eff6ff 0%, #f5f3ff 100%)",
+                                            borderBottom:
+                                                "1px solid #e0e7ff",
+                                            display:
+                                                "flex",
+                                            justifyContent:
+                                                "space-between",
+                                            alignItems:
+                                                "center",
                                         }}
                                     >
-                                        {/* HEADER */}
-                                        <div
-                                            className="semester-header"
-                                            style={{
-                                                padding: "22px 24px",
-                                                background:
-                                                    "linear-gradient(135deg,#eff6ff 0%, #f5f3ff 100%)",
-                                                borderBottom:
-                                                    "1px solid #e0e7ff",
-                                                display: "flex",
-                                                justifyContent:
-                                                    "space-between",
-                                                alignItems: "center",
-                                                gap: 16,
-                                                flexWrap: "wrap",
-                                            }}
-                                        >
-                                            <div>
-                                                <div
-                                                    style={{
-                                                        fontSize: 26,
-                                                        fontWeight: 900,
-                                                        color: "#0f172a",
-                                                        letterSpacing: "-1px",
-                                                    }}
-                                                >
-                                                    Semester {semester}
-                                                </div>
-
-                                                <div
-                                                    style={{
-                                                        marginTop: 6,
-                                                        color: "#64748b",
-                                                        fontSize: 13,
-                                                    }}
-                                                >
-                                                    {
-                                                        semesterResults.length
-                                                    } published course results
-                                                </div>
+                                        <div>
+                                            <div
+                                                style={{
+                                                    fontSize: 28,
+                                                    fontWeight: 900,
+                                                }}
+                                            >
+                                                Semester{" "}
+                                                {
+                                                    semester
+                                                }
                                             </div>
 
                                             <div
                                                 style={{
-                                                    background: "white",
-                                                    border:
-                                                        "1px solid #dbeafe",
-                                                    padding: "12px 16px",
-                                                    borderRadius: 16,
-                                                    minWidth: 110,
-                                                    textAlign: "center",
+                                                    marginTop: 4,
+                                                    color:
+                                                        "#64748b",
                                                 }}
                                             >
-                                                <div
-                                                    style={{
-                                                        fontSize: 10,
-                                                        color: "#64748b",
-                                                        fontWeight: 700,
-                                                        textTransform:
-                                                            "uppercase",
-                                                    }}
-                                                >
-                                                    Semester GPA
-                                                </div>
-
-                                                <div
-                                                    style={{
-                                                        marginTop: 5,
-                                                        fontSize: 24,
-                                                        fontWeight: 900,
-                                                        color: "#2563eb",
-                                                    }}
-                                                >
-                                                    {semesterGPA}
-                                                </div>
+                                                {
+                                                    semesterResults.length
+                                                }{" "}
+                                                published results
                                             </div>
                                         </div>
 
-                                        {/* RESULTS */}
                                         <div
                                             style={{
-                                                display: "grid",
-                                                gap: 14,
-                                                padding: 18,
+                                                textAlign:
+                                                    "center",
                                             }}
                                         >
-                                            {semesterResults.map((result) => (
+                                            <div
+                                                style={{
+                                                    fontSize: 12,
+                                                    color:
+                                                        "#64748b",
+                                                }}
+                                            >
+                                                GPA
+                                            </div>
+
+                                            <div
+                                                style={{
+                                                    fontSize: 28,
+                                                    fontWeight: 900,
+                                                    color:
+                                                        "#2563eb",
+                                                }}
+                                            >
+                                                {
+                                                    semesterGPA
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        style={{
+                                            padding: 18,
+                                            display:
+                                                "grid",
+                                            gap: 16,
+                                        }}
+                                    >
+                                        {semesterResults.map(
+                                            (
+                                                result
+                                            ) => (
                                                 <div
-                                                    key={result.id}
+                                                    key={
+                                                        result.id
+                                                    }
                                                     className="course-row"
                                                     onMouseEnter={() =>
-                                                        setActiveCard(result.id)
+                                                        setActiveCard(
+                                                            result.id
+                                                        )
                                                     }
                                                     onMouseLeave={() =>
-                                                        setActiveCard(null)
+                                                        setActiveCard(
+                                                            null
+                                                        )
                                                     }
                                                     style={{
-                                                        position: "relative",
-                                                        overflow: "hidden",
-                                                        borderRadius: 20,
                                                         border:
-                                                            "1px solid #eef2f7",
+                                                            "1px solid #e5e7eb",
+                                                        borderRadius: 22,
+                                                        padding: 22,
                                                         background:
                                                             "linear-gradient(to bottom right, #ffffff, #f8fbff)",
-                                                        padding: 20,
-                                                        boxShadow:
-                                                            activeCard ===
-                                                            result.id
-                                                                ? "0 12px 26px rgba(37,99,235,.08)"
-                                                                : "0 6px 18px rgba(15,23,42,.03)",
                                                     }}
                                                 >
                                                     <div
                                                         style={{
-                                                            position: "absolute",
-                                                            top: 0,
-                                                            left: 0,
-                                                            width: 5,
-                                                            height: "100%",
-                                                            background:
-                                                                "linear-gradient(180deg, #2563eb, #7c3aed)",
-                                                        }}
-                                                    />
-
-                                                    <div
-                                                        style={{
-                                                            display: "flex",
+                                                            display:
+                                                                "flex",
                                                             justifyContent:
                                                                 "space-between",
-                                                            alignItems: "center",
+                                                            alignItems:
+                                                                "center",
+                                                            flexWrap:
+                                                                "wrap",
                                                             gap: 18,
-                                                            flexWrap: "wrap",
                                                         }}
                                                     >
                                                         <div>
                                                             <div
                                                                 style={{
-                                                                    fontSize: 19,
-                                                                    fontWeight: 850,
-                                                                    color: "#111827",
-                                                                    letterSpacing:
-                                                                        "-0.5px",
+                                                                    fontSize: 20,
+                                                                    fontWeight: 900,
                                                                 }}
                                                             >
                                                                 {
-                                                                    result.course
+                                                                    result
+                                                                        .course
                                                                         .title
                                                                 }
                                                             </div>
@@ -602,101 +762,45 @@ export default function StudentResultsDashboard({
                                                             <div
                                                                 style={{
                                                                     marginTop: 6,
-                                                                    fontSize: 13,
-                                                                    color: "#64748b",
+                                                                    color:
+                                                                        "#64748b",
                                                                     fontWeight: 600,
                                                                 }}
                                                             >
                                                                 {
-                                                                    result.course
+                                                                    result
+                                                                        .course
                                                                         .code
                                                                 }
-                                                            </div>
-
-                                                            <div
-                                                                style={{
-                                                                    marginTop: 10,
-                                                                    display: "flex",
-                                                                    alignItems:
-                                                                        "center",
-                                                                    gap: 8,
-                                                                    flexWrap: "wrap",
-                                                                }}
-                                                            >
-                                <span
-                                    style={{
-                                        padding:
-                                            "6px 10px",
-                                        borderRadius:
-                                            999,
-                                        background:
-                                            "#eff6ff",
-                                        color:
-                                            "#2563eb",
-                                        fontSize: 11,
-                                        fontWeight: 800,
-                                        border:
-                                            "1px solid #dbeafe",
-                                    }}
-                                >
-                                  📘 Semester{" "}
-                                    {
-                                        result.semester
-                                    }
-                                </span>
-
-                                                                <span
-                                                                    style={{
-                                                                        padding:
-                                                                            "6px 10px",
-                                                                        borderRadius:
-                                                                            999,
-                                                                        background:
-                                                                            "#dcfce7",
-                                                                        color:
-                                                                            "#166534",
-                                                                        fontSize: 11,
-                                                                        fontWeight: 700,
-                                                                        border:
-                                                                            "1px solid #bbf7d0",
-                                                                    }}
-                                                                >
-                                  Approved
-                                </span>
                                                             </div>
                                                         </div>
 
                                                         <div
                                                             style={{
-                                                                display: "flex",
-                                                                gap: 12,
-                                                                alignItems:
-                                                                    "center",
-                                                                flexWrap: "wrap",
+                                                                display:
+                                                                    "flex",
+                                                                gap: 14,
                                                             }}
                                                         >
                                                             <div
                                                                 style={{
-                                                                    minWidth: 105,
+                                                                    minWidth: 110,
+                                                                    padding:
+                                                                        "12px 16px",
+                                                                    borderRadius: 18,
                                                                     background:
                                                                         "white",
                                                                     border:
                                                                         "1px solid #e5e7eb",
-                                                                    borderRadius: 18,
-                                                                    padding:
-                                                                        "12px 16px",
                                                                     textAlign:
                                                                         "center",
                                                                 }}
                                                             >
                                                                 <div
                                                                     style={{
-                                                                        fontSize: 10,
-                                                                        fontWeight: 700,
+                                                                        fontSize: 11,
                                                                         color:
                                                                             "#64748b",
-                                                                        textTransform:
-                                                                            "uppercase",
                                                                     }}
                                                                 >
                                                                     Marks
@@ -704,37 +808,35 @@ export default function StudentResultsDashboard({
 
                                                                 <div
                                                                     style={{
-                                                                        marginTop: 5,
-                                                                        fontSize: 24,
+                                                                        marginTop: 6,
+                                                                        fontSize: 26,
                                                                         fontWeight: 900,
-                                                                        color:
-                                                                            "#111827",
                                                                     }}
                                                                 >
-                                                                    {result.marks}
+                                                                    {
+                                                                        result.marks
+                                                                    }
                                                                 </div>
                                                             </div>
 
                                                             <div
                                                                 style={{
-                                                                    minWidth: 105,
-                                                                    background:
-                                                                        "linear-gradient(135deg, #2563eb, #4f46e5)",
-                                                                    borderRadius: 18,
+                                                                    minWidth: 110,
                                                                     padding:
                                                                         "12px 16px",
+                                                                    borderRadius: 18,
+                                                                    background:
+                                                                        "linear-gradient(135deg, #2563eb, #4f46e5)",
+                                                                    color:
+                                                                        "white",
                                                                     textAlign:
                                                                         "center",
-                                                                    color: "white",
                                                                 }}
                                                             >
                                                                 <div
                                                                     style={{
-                                                                        fontSize: 10,
-                                                                        fontWeight: 700,
+                                                                        fontSize: 11,
                                                                         opacity: 0.85,
-                                                                        textTransform:
-                                                                            "uppercase",
                                                                     }}
                                                                 >
                                                                     GPA
@@ -742,80 +844,40 @@ export default function StudentResultsDashboard({
 
                                                                 <div
                                                                     style={{
-                                                                        marginTop: 5,
+                                                                        marginTop: 6,
                                                                         fontSize: 26,
                                                                         fontWeight: 900,
                                                                     }}
                                                                 >
-                                                                    {result.gpa}
+                                                                    {
+                                                                        result.gpa
+                                                                    }
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            ))}
-                                        </div>
+                                            )
+                                        )}
                                     </div>
-                                );
-                            })}
-                        </div>
-                    </>
-                ) : (
-                    <div
-                        style={{
-                            background: "white",
-                            border:
-                                "1px dashed rgba(148,163,184,.4)",
-                            borderRadius: 28,
-                            padding: "70px 24px",
-                            textAlign: "center",
-                        }}
-                    >
-                        <div
-                            style={{
-                                fontSize: 60,
-                                marginBottom: 14,
-                            }}
-                        >
-                            📚
-                        </div>
+                                </div>
+                            );
+                        }
+                    )}
+                </div>
 
-                        <div
-                            style={{
-                                fontSize: 26,
-                                fontWeight: 850,
-                                color: "#111827",
-                            }}
-                        >
-                            No Results Yet
-                        </div>
-
-                        <div
-                            style={{
-                                maxWidth: 480,
-                                margin: "12px auto 0",
-                                color: "#64748b",
-                                fontSize: 14,
-                                lineHeight: 1.8,
-                            }}
-                        >
-                            Your published grades will appear here once
-                            your teachers upload and administrators
-                            approve them.
-                        </div>
-                    </div>
-                )}
-
-                {/* PAGINATION */}
                 {pagination && (
                     <div
                         style={{
                             marginTop: 34,
-                            display: "flex",
-                            justifyContent: "center",
+                            display:
+                                "flex",
+                            justifyContent:
+                                "center",
                         }}
                         dangerouslySetInnerHTML={{
-                            __html: pagination,
+                            __html:
+                            pagination,
                         }}
                     />
                 )}

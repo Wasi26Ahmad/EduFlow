@@ -5,6 +5,10 @@ class User < ApplicationRecord
   has_many :teaching_courses, class_name: "Course", foreign_key: "teacher_id"
   has_many :payments
 
+  has_many :result_exports,
+           dependent: :destroy
+
+
   has_many :created_tests,
            class_name: "Test",
            foreign_key: :teacher_id

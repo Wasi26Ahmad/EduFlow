@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_20_053524) do
+ActiveRecord::Schema[7.1].define(version: 2026_05_21_044427) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -156,6 +156,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_20_053524) do
     t.index ["test_id"], name: "index_questions_on_test_id"
   end
 
+  create_table "result_exports", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "status", default: "pending", null: false
+    t.text "error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "file_path"
+    t.index ["created_at"], name: "index_result_exports_on_created_at"
+    t.index ["status"], name: "index_result_exports_on_status"
+    t.index ["user_id"], name: "index_result_exports_on_user_id"
+  end
+
   create_table "results", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "course_id", null: false
     t.float "gpa"
@@ -265,6 +277,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_20_053524) do
   add_foreign_key "payments", "users"
   add_foreign_key "question_options", "questions"
   add_foreign_key "questions", "tests"
+  add_foreign_key "result_exports", "users"
   add_foreign_key "results", "courses"
   add_foreign_key "results", "users"
   add_foreign_key "students", "users"
